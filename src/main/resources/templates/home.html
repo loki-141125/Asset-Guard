@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>AssetGuard</title>
+    <style>
+        body { font-family: sans-serif; max-width: 500px; margin: 50px auto; padding: 20px; }
+        input { width: 100%; padding: 10px; margin-bottom: 10px; box-sizing: border-box; }
+        button { width: 100%; padding: 10px; background: #000; color: #fff; border: none; cursor: pointer; }
+        ul { list-style: none; padding: 0; }
+        li { padding: 10px; border-bottom: 1px solid #ddd; display: flex; justify-content: space-between; }
+        .tag { background: #eee; padding: 2px 6px; font-size: 0.8em; border-radius: 4px; }
+    </style>
+</head>
+<body>
+    <h2>AssetGuard Manager</h2>
+    
+    <form id="form">
+        <input type="text" id="name" placeholder="Asset Name (e.g., MacBook Pro)" required>
+        <input type="text" id="serial" placeholder="Serial Number" required>
+        <button type="submit" id="btn">Add Asset</button>
+    </form>
+
+    <ul id="list"></ul>
+
+    <script>
+        // 1. Fetch and display data
+        async function load() {
+            const res = await fetch("/api/assets");
+            const data = await res.json();
+            document.getElementById("list").innerHTML = data.map(item => 
+                `<li><span>${item.name}</span> <span class="tag">${item.serialNumber}</span></li>`
+            ).join("");
+        }
+
+        // 2. Handle form submit
+        document.getElementById("form").onsubmit = async (e) => {
+            e.preventDefault();
+            const name = document.getElementById("name").value;
+            const serial = document.getElementById("serial").value;
+
+            await fetch("/api/add", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ name, serialNumber: serial })
+            });
+
+            document.getElementById("name").value = "";
+            document.getElementById("serial").value = "";
+            load(); // Reload the list
+        };
+
+        load(); // Run immediately on page load
+    </script>
+</body>
+</html>
