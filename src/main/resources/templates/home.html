@@ -1,55 +1,144 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>AssetGuard</title>
+    <title>Enterprise Asset Manager</title>
     <style>
-        body { font-family: sans-serif; max-width: 500px; margin: 50px auto; padding: 20px; }
-        input { width: 100%; padding: 10px; margin-bottom: 10px; box-sizing: border-box; }
-        button { width: 100%; padding: 10px; background: #000; color: #fff; border: none; cursor: pointer; }
-        ul { list-style: none; padding: 0; }
-        li { padding: 10px; border-bottom: 1px solid #ddd; display: flex; justify-content: space-between; }
-        .tag { background: #eee; padding: 2px 6px; font-size: 0.8em; border-radius: 4px; }
+        body { font-family: 'Segoe UI', sans-serif; background: #f4f7f6; padding: 40px; }
+        .container { max-width: 900px; margin: 0 auto; background: white; padding: 30px; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); }
+        
+        h2 { color: #2c3e50; border-bottom: 2px solid #eee; padding-bottom: 10px; }
+        
+        /* FORM STYLES */
+        .input-group { display: grid; grid-template-columns: 1fr 1fr 1fr auto; gap: 10px; margin-bottom: 30px; }
+        input, select { padding: 12px; border: 1px solid #ddd; border-radius: 6px; }
+        button#add { background: #2c3e50; color: white; border: none; padding: 12px 20px; border-radius: 6px; cursor: pointer; }
+        
+        /* TABLE STYLES */
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th { text-align: left; color: #7f8c8d; font-size: 12px; text-transform: uppercase; padding: 10px; border-bottom: 1px solid #eee; }
+        td { padding: 15px 10px; border-bottom: 1px solid #f8f9fa; color: #34495e; }
+        
+        /* STATUS BADGES */
+        .badge { padding: 5px 10px; border-radius: 20px; font-size: 12px; font-weight: bold; }
+        .status-Available { background: #e8f5e9; color: #2e7d32; }
+        .status-InUse { background: #e3f2fd; color: #1565c0; }
+        .status-Repair { background: #ffebee; color: #c62828; }
+
+        /* ACTION BUTTONS */
+        .action-btn { border: none; background: none; cursor: pointer; font-size: 18px; margin-right: 10px; opacity: 0.6; }
+        .action-btn:hover { opacity: 1; transform: scale(1.1); }
     </style>
 </head>
 <body>
-    <h2>AssetGuard Manager</h2>
-    
-    <form id="form">
-        <input type="text" id="name" placeholder="Asset Name (e.g., MacBook Pro)" required>
-        <input type="text" id="serial" placeholder="Serial Number" required>
-        <button type="submit" id="btn">Add Asset</button>
-    </form>
 
-    <ul id="list"></ul>
+    <div class="container">
+        <h2>🏢 IT Asset Inventory</h2>
+
+        <form id="form">
+            <div class="input-group">
+                <input type="text" id="name" placeholder="Device Name (e.g. Dell XPS)" required>
+                <input type="text" id="serial" placeholder="Serial No." required>
+                <select id="status">
+                    <option value="Available">Available</option>
+                    <option value="In Use">In Use</option>
+                    <option value="Repair">In Repair</option>
+                </select>
+                <button type="submit" id="add">+ Add Device</button>
+            </div>
+        </form>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Device</th>
+                    <th>Assigned To</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody id="list"></tbody>
+        </table>
+    </div>
 
     <script>
-        // 1. Fetch and display data
+        const API = "/api";
+
         async function load() {
-            const res = await fetch("/api/assets");
+            const res = await fetch(API + "/assets");
             const data = await res.json();
-            document.getElementById("list").innerHTML = data.map(item => 
-                `<li><span>${item.name}</span> <span class="tag">${item.serialNumber}</span></li>`
-            ).join("");
+            
+            document.getElementById("list").innerHTML = data.map(i => {
+                // Determine Badge Color
+                let badgeClass = "status-" + i.status.replace(" ", "");
+                let assignedDisplay = i.assignedTo ? `👤 ${i.assignedTo}` : `<span style="color:#ccc">-- Unassigned --</span>`;
+
+                return `
+                <tr>
+                    <td>
+                        <b>${i.name}</b><br>
+                        <small style="color:#999">${i.serialNumber}</small>
+                    </td>
+                    <td>${assignedDisplay}</td>
+                    <td><span class="badge ${badgeClass}">${i.status}</span></td>
+                    <td>
+                        <button class="action-btn" title="Assign to Employee" onclick="assignUser(${i.id})">👤</button>
+                        <button class="action-btn" title="Send to Repair" onclick="markRepair(${i.id})">🔧</button>
+                        <button class="action-btn" style="color:red" title="Delete" onclick="remove(${i.id})">🗑️</button>
+                    </td>
+                </tr>`;
+            }).join("");
         }
 
-        // 2. Handle form submit
+        // Action: Assign Employee
+        async function assignUser(id) {
+            let emp = prompt("Enter Employee Name:");
+            if(emp) {
+                await update(id, { assignedTo: emp, status: "In Use" });
+            }
+        }
+
+        // Action: Send to Repair
+        async function markRepair(id) {
+            if(confirm("Mark this device as BROKEN/REPAIR?")) {
+                await update(id, { status: "Repair" });
+            }
+        }
+
+        // Helper: Update Data
+        async function update(id, payload) {
+            await fetch(API + "/update/" + id, {
+                method: "PUT",
+                headers: {"Content-Type": "application/json"},
+                body: JSON.stringify(payload)
+            });
+            load();
+        }
+
+        async function remove(id) {
+            if(confirm("Remove this asset permanently?")) {
+                await fetch(API + "/delete/" + id, { method: "DELETE" });
+                load();
+            }
+        }
+        
         document.getElementById("form").onsubmit = async (e) => {
             e.preventDefault();
-            const name = document.getElementById("name").value;
-            const serial = document.getElementById("serial").value;
-
-            await fetch("/api/add", {
+            await fetch(API + "/add", {
                 method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ name, serialNumber: serial })
+                headers: {"Content-Type": "application/json"},
+                body: JSON.stringify({
+                    name: document.getElementById("name").value,
+                    serialNumber: document.getElementById("serial").value,
+                    status: document.getElementById("status").value,
+                    assignedTo: null
+                })
             });
-
             document.getElementById("name").value = "";
             document.getElementById("serial").value = "";
-            load(); // Reload the list
+            load();
         };
 
-        load(); // Run immediately on page load
+        load();
     </script>
 </body>
 </html>
