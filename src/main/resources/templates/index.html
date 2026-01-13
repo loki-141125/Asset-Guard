@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Nexus Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        :root { --bg: #0f172a; --card: #1e293b; --text: #e2e8f0; --blue: #38bdf8; --green: #4ade80; --red: #f87171; }
+        body { margin: 0; background: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; display: flex; height: 100vh; }
+        
+        .sidebar { width: 280px; background: #111827; padding: 25px; border-right: 1px solid #334155; display: flex; flex-direction: column; }
+        .logo { font-size: 22px; font-weight: bold; color: var(--blue); margin-bottom: 40px; }
+        .log-title { font-size: 11px; color: #94a3b8; font-weight: bold; margin-bottom: 15px; }
+        .log-box { flex: 1; overflow-y: auto; }
+        .log-entry { font-size: 12px; margin-bottom: 12px; border-left: 2px solid #334155; padding-left: 10px; }
+        .log-time { color: #64748b; font-size: 10px; }
+
+        .content { flex: 1; padding: 40px; overflow-y: auto; }
+        .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; margin-bottom: 30px; }
+        .card { background: var(--card); padding: 20px; border-radius: 12px; border: 1px solid #334155; }
+        .num { font-size: 36px; font-weight: bold; margin-top: 5px; }
+        
+        .controls { display: flex; gap: 10px; margin-bottom: 20px; }
+        input, button { background: var(--card); border: 1px solid #334155; color: white; padding: 12px; border-radius: 6px; outline: none; }
+        button.add { background: var(--blue); color: black; font-weight: bold; border: none; cursor: pointer; }
+
+        table { width: 100%; border-collapse: collapse; }
+        th { text-align: left; color: #94a3b8; padding: 15px; border-bottom: 1px solid #334155; font-size: 12px; }
+        td { padding: 15px; border-bottom: 1px solid #334155; }
+        .badge { padding: 4px 10px; border-radius: 12px; font-size: 11px; font-weight: bold; }
+        .badge.Available { background: rgba(74,222,128,0.2); color: var(--green); }
+        .badge.In.Use { background: rgba(56,189,248,0.2); color: var(--blue); }
+        .badge.Repair { background: rgba(248,113,113,0.2); color: var(--red); }
+        
+        .btn-act { background: none; border: none; font-size: 16px; cursor: pointer; margin-right: 5px; opacity: 0.6; }
+        .btn-act:hover { opacity: 1; transform: scale(1.1); }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <div class="logo">⚡ NEXUS</div>
+        <div class="log-title">RECENT ACTIVITY</div>
+        <div id="logs" class="log-box"></div>
+        <a href="/logout" style="color:#ef4444; text-decoration:none; margin-top:20px; font-size:12px;">Log Out</a>
+    </div>
+
+    <div class="content">
+        <div class="stats">
+            <div class="card"><div style="color:#94a3b8; font-size:12px">TOTAL ASSETS</div><div id="s-total" class="num">0</div></div>
+            <div class="card"><div style="color:var(--green); font-size:12px">AVAILABLE</div><div id="s-av" class="num" style="color:var(--green)">0</div></div>
+            <div class="card"><div style="color:var(--blue); font-size:12px">ACTIVE</div><div id="s-use" class="num" style="color:var(--blue)">0</div></div>
+            <div class="card"><div style="color:var(--red); font-size:12px">REPAIR</div><div id="s-rep" class="num" style="color:var(--red)">0</div></div>
+        </div>
+
+        <div class="controls">
+            <input id="name" placeholder="Asset Name" style="flex:2">
+            <input id="serial" placeholder="Serial #" style="flex:1">
+            <button class="add" onclick="addAsset()">+ Add Device</button>
+            <input id="search" placeholder="Search..." style="margin-left:auto" onkeyup="render()">
+        </div>
+
+        <table>
+            <thead><tr><th>Asset</th><th>Assigned To</th><th>Status</th><th>Actions</th></tr></thead>
+            <tbody id="list"></tbody>
+        </table>
+    </div>
+
+    <script>
+        let data = [];
+        async function init() {
+            await Promise.all([loadStats(), loadAssets(), loadLogs()]);
+        }
+
+        async function loadStats() {
+            const res = await fetch('/api/stats');
+            const s = await res.json();
+            document.getElementById('s-total').innerText = s.total;
+            document.getElementById('s-av').innerText = s.available;
+            document.getElementById('s-use').innerText = s.active;
+            document.getElementById('s-rep').innerText = s.repair;
+        }
+
+        async function loadAssets() {
+            const res = await fetch('/api/assets');
+            data = await res.json();
+            render();
+        }
+
+        async function loadLogs() {
+            const res = await fetch('/api/history');
+            const logs = await res.json();
+            document.getElementById('logs').innerHTML = logs.map(l => `
+                <div class="log-entry">
+                    <div style="color:white">${l.assetName}</div>
+                    <div style="color:#94a3b8">${l.action}</div>
+                    <div class="log-time">${new Date(l.timestamp).toLocaleTimeString()}</div>
+                </div>
+            `).join('');
+        }
+
+        function render() {
+            const q = document.getElementById('search').value.toLowerCase();
+            const filtered = data.filter(d => d.name.toLowerCase().includes(q) || d.serialNumber.toLowerCase().includes(q));
+            
+            document.getElementById('list').innerHTML = filtered.map(d => `
+                <tr>
+                    <td><b>${d.name}</b><br><small style="color:#64748b">${d.serialNumber}</small></td>
+                    <td>${d.assignedTo ? '👤 '+d.assignedTo : '<span style="opacity:0.2">--</span>'}</td>
+                    <td><span class="badge ${d.status}">${d.status}</span></td>
+                    <td>
+                        <button class="btn-act" onclick="assign(${d.id})">📲</button>
+                        <button class="btn-act" onclick="repair(${d.id})">🔧</button>
+                        <button class="btn-act" style="color:#ef4444" onclick="del(${d.id})">✖</button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        async function addAsset() {
+            const name = document.getElementById('name').value;
+            const serial = document.getElementById('serial').value;
+            if(!name) return;
+            await fetch('/api/add', {
+                method:'POST', headers:{'Content-Type':'application/json'},
+                body: JSON.stringify({name, serialNumber:serial})
+            });
+            document.getElementById('name').value = '';
+            init();
+        }
+
+        async function assign(id) {
+            const user = prompt("Assign to user:");
+            if(user) await update(id, "In Use", user);
+        }
+
+        async function repair(id) {
+            if(confirm("Send to repair?")) await update(id, "Repair", "Maintenance");
+        }
+
+        async function update(id, status, user) {
+            await fetch('/api/update/'+id, {
+                method:'PUT', headers:{'Content-Type':'application/json'},
+                body: JSON.stringify({status, assignedTo: user})
+            });
+            init();
+        }
+
+        async function del(id) {
+            if(confirm("Delete asset?")) {
+                await fetch('/api/delete/'+id, {method:'DELETE'});
+                init();
+            }
+        }
+        init();
+    </script>
+</body>
+</html>
