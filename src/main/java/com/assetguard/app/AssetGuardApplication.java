@@ -91,7 +91,7 @@ class ApiController {
 
     // --- ASSET ENDPOINTS ---
     @GetMapping("/assets")
-    public List<Asset> getAssets(@Requestl(required = false) String status, 
+    public List<Asset> getAssets(@RequestParam(required = false) String status, 
                                   @RequestParam(required = false) Long categoryId,
                                   @RequestParam(required = false) String search) {
         List<Asset> assets = new ArrayList<>();
