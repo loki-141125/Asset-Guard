@@ -11,6 +11,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import jakarta.persistence.*;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.data.repository.CrudRepository;
 import java.util.*;
 
@@ -90,7 +91,7 @@ class ApiController {
 
     // --- ASSET ENDPOINTS ---
     @GetMapping("/assets")
-    public List<Asset> getAssets(@RequestParam(required = false) String status, 
+    public List<Asset> getAssets(@Requestl(required = false) String status, 
                                   @RequestParam(required = false) Long categoryId,
                                   @RequestParam(required = false) String search) {
         List<Asset> assets = new ArrayList<>();
@@ -464,8 +465,8 @@ interface AssetRepository extends CrudRepository<Asset, Long> {
 }
 
 interface HistoryRepository extends CrudRepository<History, Long> {
-    List<History> findTopByOrderByTimestampDesc(int limit);
-}
+        @Query("SELECT h FROM History h ORDER BY h.timestamp DESC LIMIT :limit")
+        List<History> findTopByOrderByTimestampDesc(@Param("limit") int limit);}
 
 interface DepartmentRepository extends CrudRepository<Department, Long> {
 }
