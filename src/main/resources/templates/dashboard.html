@@ -1,0 +1,1335 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AssetGuard Dashboard</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        :root {
+            --primary: #667eea;
+            --secondary: #764ba2;
+            --success: #27ae60;
+            --danger: #e74c3c;
+            --warning: #f39c12;
+            --light: #ecf0f1;
+            --dark: #2c3e50;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f7fa;
+            color: #333;
+        }
+        
+        .dashboard {
+            display: grid;
+            grid-template-columns: 250px 1fr;
+            min-height: 100vh;
+        }
+        
+        /* SIDEBAR */
+        .sidebar {
+            background: var(--dark);
+            color: white;
+            padding: 30px 20px;
+            position: fixed;
+            width: 250px;
+            height: 100vh;
+            overflow-y: auto;
+            box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+        }
+        
+        .sidebar-logo {
+            font-size: 22px;
+            font-weight: bold;
+            margin-bottom: 40px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .sidebar-menu {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        
+        .sidebar-menu a {
+            padding: 12px 15px;
+            border-radius: 8px;
+            color: #ccc;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            cursor: pointer;
+        }
+        
+        .sidebar-menu a:hover {
+            background: rgba(255,255,255,0.1);
+            color: white;
+        }
+        
+        .sidebar-menu a.active {
+            background: var(--primary);
+            color: white;
+        }
+        
+        .sidebar-menu span {
+            font-size: 18px;
+        }
+        
+        .sidebar-footer {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            right: 20px;
+        }
+        
+        .user-profile {
+            padding: 15px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 8px;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            background: var(--primary);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+        
+        .user-info {
+            flex: 1;
+            min-width: 0;
+        }
+        
+        .user-name {
+            font-weight: 600;
+            font-size: 12px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        .user-role {
+            font-size: 11px;
+            opacity: 0.7;
+        }
+        
+        .logout-btn {
+            width: 100%;
+            padding: 10px;
+            background: var(--danger);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 13px;
+            transition: all 0.3s ease;
+        }
+        
+        .logout-btn:hover {
+            background: #c0392b;
+        }
+        
+        /* MAIN CONTENT */
+        .main-content {
+            margin-left: 250px;
+            padding: 30px;
+        }
+        
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+        
+        .header h1 {
+            font-size: 32px;
+            color: var(--dark);
+        }
+        
+        .header-actions {
+            display: flex;
+            gap: 15px;
+        }
+        
+        .search-box {
+            padding: 10px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            width: 300px;
+            font-family: inherit;
+            font-size: 14px;
+        }
+        
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+        }
+        
+        .btn-secondary {
+            background: var(--light);
+            color: var(--dark);
+        }
+        
+        .btn-secondary:hover {
+            background: #ddd;
+        }
+        
+        /* STATS CARDS */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .stat-card {
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            border-left: 4px solid var(--primary);
+        }
+        
+        .stat-card.available { border-left-color: var(--success); }
+        .stat-card.repair { border-left-color: var(--warning); }
+        .stat-card.in-use { border-left-color: var(--primary); }
+        .stat-card.value { border-left-color: #9b59b6; }
+        
+        .stat-label {
+            font-size: 12px;
+            color: #666;
+            font-weight: 600;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+        }
+        
+        .stat-value {
+            font-size: 28px;
+            font-weight: bold;
+            color: var(--dark);
+        }
+        
+        .stat-subtitle {
+            font-size: 12px;
+            color: #999;
+            margin-top: 5px;
+        }
+        
+        /* TABS */
+        .tabs {
+            display: flex;
+            gap: 30px;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #e0e0e0;
+        }
+        
+        .tab-btn {
+            padding: 15px 0;
+            background: none;
+            border: none;
+            color: #666;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border-bottom: 3px solid transparent;
+            margin-bottom: -2px;
+            font-size: 14px;
+        }
+        
+        .tab-btn.active {
+            color: var(--primary);
+            border-bottom-color: var(--primary);
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        /* TABLE */
+        .table-container {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            overflow: hidden;
+        }
+        
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        .table th {
+            background: #f8f9fa;
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+            color: #666;
+            font-size: 13px;
+            text-transform: uppercase;
+            border-bottom: 2px solid #e0e0e0;
+        }
+        
+        .table td {
+            padding: 15px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        
+        .table tr:last-child td {
+            border-bottom: none;
+        }
+        
+        .table tr:hover {
+            background: #f8f9fa;
+        }
+        
+        .status-badge {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            display: inline-block;
+        }
+        
+        .status-available { background: #d4edda; color: #155724; }
+        .status-in-use { background: #cce5ff; color: #004085; }
+        .status-repair { background: #fff3cd; color: #856404; }
+        .status-deprecated { background: #f8d7da; color: #721c24; }
+        
+        /* MODALS */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .modal.active {
+            display: flex;
+        }
+        
+        .modal-content {
+            background: white;
+            border-radius: 10px;
+            width: 90%;
+            max-width: 500px;
+            padding: 30px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .modal-header h2 {
+            font-size: 24px;
+            color: var(--dark);
+        }
+        
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 28px;
+            cursor: pointer;
+            color: #666;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #333;
+            font-size: 14px;
+        }
+        
+        .form-group input, .form-group select, .form-group textarea {
+            width: 100%;
+            padding: 10px 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 6px;
+            font-size: 14px;
+            font-family: inherit;
+            transition: all 0.3s ease;
+        }
+        
+        .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+        
+        .form-group textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+        
+        /* ACTION BUTTONS */
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+        }
+        
+        .btn-sm {
+            padding: 8px 12px;
+            font-size: 12px;
+            border-radius: 6px;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-edit {
+            background: var(--primary);
+            color: white;
+        }
+        
+        .btn-delete {
+            background: var(--danger);
+            color: white;
+        }
+        
+        .btn-edit:hover { transform: translateY(-1px); }
+        .btn-delete:hover { transform: translateY(-1px); }
+        
+        /* EMPTY STATE */
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #666;
+        }
+        
+        .empty-state-icon {
+            font-size: 60px;
+            margin-bottom: 20px;
+        }
+        
+        .empty-state p {
+            margin-bottom: 20px;
+        }
+        
+        /* RESPONSIVE */
+        @media (max-width: 1024px) {
+            .dashboard {
+                grid-template-columns: 1fr;
+            }
+            
+            .sidebar {
+                position: relative;
+                width: 100%;
+                height: auto;
+                padding: 20px;
+            }
+            
+            .sidebar-menu {
+                flex-direction: row;
+                flex-wrap: wrap;
+            }
+            
+            .main-content {
+                margin-left: 0;
+            }
+            
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 15px;
+            }
+            
+            .header-actions {
+                flex-direction: column;
+                width: 100%;
+            }
+            
+            .search-box {
+                width: 100%;
+            }
+            
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .table {
+                font-size: 13px;
+            }
+            
+            .table th, .table td {
+                padding: 10px;
+            }
+        }
+        
+        .alert {
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: none;
+        }
+        
+        .alert.show {
+            display: block;
+        }
+        
+        .alert-success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .alert-error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard">
+        <!-- SIDEBAR -->
+        <div class="sidebar">
+            <div class="sidebar-logo">
+                <span>🛡️</span>
+                <span>AssetGuard</span>
+            </div>
+            
+            <div class="sidebar-menu">
+                <a class="active" onclick="switchTab('dashboard')">
+                    <span>📊</span>
+                    <span>Dashboard</span>
+                </a>
+                <a onclick="switchTab('assets')">
+                    <span>📦</span>
+                    <span>Assets</span>
+                </a>
+                <a onclick="switchTab('maintenance')">
+                    <span>🔧</span>
+                    <span>Maintenance</span>
+                </a>
+                <a onclick="switchTab('history')">
+                    <span>📋</span>
+                    <span>Audit Log</span>
+                </a>
+                <a onclick="switchTab('categories')">
+                    <span>🏷️</span>
+                    <span>Categories</span>
+                </a>
+                <a onclick="switchTab('departments')">
+                    <span>🏢</span>
+                    <span>Departments</span>
+                </a>
+            </div>
+            
+            <div class="sidebar-footer">
+                <div class="user-profile">
+                    <div class="user-avatar" id="userInitial">-</div>
+                    <div class="user-info">
+                        <div class="user-name" id="userName">User</div>
+                        <div class="user-role" id="userRole">User</div>
+                    </div>
+                </div>
+                <button class="logout-btn" onclick="logout()">Sign Out</button>
+            </div>
+        </div>
+        
+        <!-- MAIN CONTENT -->
+        <div class="main-content">
+            <div id="alertBox" class="alert"></div>
+            
+            <!-- DASHBOARD TAB -->
+            <div id="dashboard" class="tab-content active">
+                <div class="header">
+                    <h1>Dashboard</h1>
+                </div>
+                
+                <div class="stats-grid">
+                    <div class="stat-card in-use">
+                        <div class="stat-label">Total Assets</div>
+                        <div class="stat-value" id="totalAssets">0</div>
+                        <div class="stat-subtitle">All assets in system</div>
+                    </div>
+                    
+                    <div class="stat-card available">
+                        <div class="stat-label">Available</div>
+                        <div class="stat-value" id="availableAssets">0</div>
+                        <div class="stat-subtitle">Ready to use</div>
+                    </div>
+                    
+                    <div class="stat-card in-use">
+                        <div class="stat-label">In Use</div>
+                        <div class="stat-value" id="activeAssets">0</div>
+                        <div class="stat-subtitle">Currently assigned</div>
+                    </div>
+                    
+                    <div class="stat-card repair">
+                        <div class="stat-label">Under Repair</div>
+                        <div class="stat-value" id="repairAssets">0</div>
+                        <div class="stat-subtitle">Maintenance ongoing</div>
+                    </div>
+                    
+                    <div class="stat-card value">
+                        <div class="stat-label">Total Value</div>
+                        <div class="stat-value" id="totalValue">$0</div>
+                        <div class="stat-subtitle">Asset portfolio value</div>
+                    </div>
+                </div>
+                
+                <h2 style="margin: 40px 0 20px; color: var(--dark);">Recent Activity</h2>
+                <div id="recentActivity" class="table-container"></div>
+            </div>
+            
+            <!-- ASSETS TAB -->
+            <div id="assets" class="tab-content">
+                <div class="header">
+                    <h1>Asset Management</h1>
+                    <div class="header-actions">
+                        <input type="text" id="searchAssets" class="search-box" placeholder="Search assets...">
+                        <button class="btn btn-primary" onclick="openAddAssetModal()">+ Add Asset</button>
+                    </div>
+                </div>
+                
+                <div class="tabs">
+                    <button class="tab-btn active" onclick="filterAssets('all')">All</button>
+                    <button class="tab-btn" onclick="filterAssets('Available')">Available</button>
+                    <button class="tab-btn" onclick="filterAssets('In Use')">In Use</button>
+                    <button class="tab-btn" onclick="filterAssets('Repair')">Repair</button>
+                </div>
+                
+                <div id="assetsTable" class="table-container"></div>
+            </div>
+            
+            <!-- MAINTENANCE TAB -->
+            <div id="maintenance" class="tab-content">
+                <div class="header">
+                    <h1>Maintenance Records</h1>
+                    <button class="btn btn-primary" onclick="openAddMaintenanceModal()">+ Add Record</button>
+                </div>
+                
+                <div id="maintenanceTable" class="table-container"></div>
+            </div>
+            
+            <!-- HISTORY TAB -->
+            <div id="history" class="tab-content">
+                <div class="header">
+                    <h1>Audit Log</h1>
+                </div>
+                
+                <div id="historyTable" class="table-container"></div>
+            </div>
+            
+            <!-- CATEGORIES TAB -->
+            <div id="categories" class="tab-content">
+                <div class="header">
+                    <h1>Asset Categories</h1>
+                    <button class="btn btn-primary" onclick="openAddCategoryModal()">+ Add Category</button>
+                </div>
+                
+                <div id="categoriesTable" class="table-container"></div>
+            </div>
+            
+            <!-- DEPARTMENTS TAB -->
+            <div id="departments" class="tab-content">
+                <div class="header">
+                    <h1>Departments</h1>
+                    <button class="btn btn-primary" onclick="openAddDepartmentModal()">+ Add Department</button>
+                </div>
+                
+                <div id="departmentsTable" class="table-container"></div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- ADD/EDIT ASSET MODAL -->
+    <div id="assetModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Add Asset</h2>
+                <button class="close-btn" onclick="closeModal('assetModal')">&times;</button>
+            </div>
+            
+            <form id="assetForm" onsubmit="saveAsset(event)">
+                <div class="form-group">
+                    <label>Asset Name *</label>
+                    <input type="text" id="assetName" required>
+                </div>
+                
+                <div class="form-group">
+                    <label>Serial Number *</label>
+                    <input type="text" id="assetSerial" required>
+                </div>
+                
+                <div class="form-group">
+                    <label>Category</label>
+                    <select id="assetCategory"></select>
+                </div>
+                
+                <div class="form-group">
+                    <label>Location</label>
+                    <input type="text" id="assetLocation">
+                </div>
+                
+                <div class="form-group">
+                    <label>Price</label>
+                    <input type="number" id="assetPrice" step="0.01">
+                </div>
+                
+                <div class="form-group">
+                    <label>Status</label>
+                    <select id="assetStatus">
+                        <option value="Available">Available</option>
+                        <option value="In Use">In Use</option>
+                        <option value="Repair">Repair</option>
+                        <option value="Deprecated">Deprecated</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label>Assigned To</label>
+                    <input type="text" id="assetAssigned">
+                </div>
+                
+                <div class="action-buttons">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('assetModal')">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save Asset</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <!-- ADD MAINTENANCE MODAL -->
+    <div id="maintenanceModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Add Maintenance Record</h2>
+                <button class="close-btn" onclick="closeModal('maintenanceModal')">&times;</button>
+            </div>
+            
+            <form id="maintenanceForm" onsubmit="saveMaintenance(event)">
+                <div class="form-group">
+                    <label>Asset *</label>
+                    <select id="maintenanceAsset" required></select>
+                </div>
+                
+                <div class="form-group">
+                    <label>Type *</label>
+                    <input type="text" id="maintenanceType" placeholder="Preventive / Corrective" required>
+                </div>
+                
+                <div class="form-group">
+                    <label>Description</label>
+                    <textarea id="maintenanceDesc"></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label>Cost</label>
+                    <input type="number" id="maintenanceCost" step="0.01">
+                </div>
+                
+                <div class="form-group">
+                    <label>Performed By *</label>
+                    <input type="text" id="maintenancePerformedBy" required>
+                </div>
+                
+                <div class="action-buttons">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('maintenanceModal')">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save Record</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <!-- ADD CATEGORY MODAL -->
+    <div id="categoryModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Add Category</h2>
+                <button class="close-btn" onclick="closeModal('categoryModal')">&times;</button>
+            </div>
+            
+            <form id="categoryForm" onsubmit="saveCategory(event)">
+                <div class="form-group">
+                    <label>Category Name *</label>
+                    <input type="text" id="categoryName" required>
+                </div>
+                
+                <div class="form-group">
+                    <label>Description</label>
+                    <textarea id="categoryDesc"></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label>Color (for UI)</label>
+                    <input type="color" id="categoryColor" value="#667eea">
+                </div>
+                
+                <div class="action-buttons">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('categoryModal')">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save Category</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <!-- ADD DEPARTMENT MODAL -->
+    <div id="departmentModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Add Department</h2>
+                <button class="close-btn" onclick="closeModal('departmentModal')">&times;</button>
+            </div>
+            
+            <form id="departmentForm" onsubmit="saveDepartment(event)">
+                <div class="form-group">
+                    <label>Department Name *</label>
+                    <input type="text" id="departmentName" required>
+                </div>
+                
+                <div class="form-group">
+                    <label>Description</label>
+                    <textarea id="departmentDesc"></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label>Department Head</label>
+                    <input type="text" id="departmentHead">
+                </div>
+                
+                <div class="action-buttons">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('departmentModal')">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save Department</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <script>
+        let currentUser = null;
+        let allAssets = [];
+        let allCategories = [];
+        let currentAssetId = null;
+        
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            checkAuth();
+            loadDashboardData();
+            loadCategories();
+            setupEventListeners();
+        });
+        
+        function checkAuth() {
+            const user = JSON.parse(localStorage.getItem('user') || '{}');
+            if (!user.id) {
+                window.location.href = '/login';
+                return;
+            }
+            currentUser = user;
+            const initial = user.fullName.charAt(0).toUpperCase();
+            document.getElementById('userInitial').textContent = initial;
+            document.getElementById('userName').textContent = user.fullName;
+            document.getElementById('userRole').textContent = user.role || 'User';
+        }
+        
+        function setupEventListeners() {
+            document.getElementById('searchAssets').addEventListener('input', (e) => {
+                renderAssets(allAssets.filter(a => 
+                    a.name.toLowerCase().includes(e.target.value.toLowerCase()) ||
+                    a.serialNumber.toLowerCase().includes(e.target.value.toLowerCase())
+                ));
+            });
+        }
+        
+        async function loadDashboardData() {
+            try {
+                const [statsRes, historyRes, assetsRes] = await Promise.all([
+                    fetch('/api/stats'),
+                    fetch('/api/history?limit=10'),
+                    fetch('/api/assets')
+                ]);
+                
+                const stats = await statsRes.json();
+                const history = await historyRes.json();
+                allAssets = await assetsRes.json();
+                
+                document.getElementById('totalAssets').textContent = stats.total;
+                document.getElementById('availableAssets').textContent = stats.available;
+                document.getElementById('activeAssets').textContent = stats.active;
+                document.getElementById('repairAssets').textContent = stats.repair;
+                document.getElementById('totalValue').textContent = '$' + (stats.totalValue || 0).toFixed(2);
+                
+                renderRecentActivity(history);
+            } catch (error) {
+                showAlert('Error loading dashboard data', 'error');
+            }
+        }
+        
+        function renderRecentActivity(history) {
+            const container = document.getElementById('recentActivity');
+            if (history.length === 0) {
+                container.innerHTML = '<div class="empty-state"><div class="empty-state-icon">📭</div><p>No recent activity</p></div>';
+                return;
+            }
+            
+            let html = '<table class="table"><thead><tr><th>Asset</th><th>Action</th><th>User</th><th>Time</th></tr></thead><tbody>';
+            history.forEach(h => {
+                const date = new Date(h.timestamp);
+                html += `<tr>
+                    <td>${h.assetName}</td>
+                    <td>${h.action}</td>
+                    <td>${h.user}</td>
+                    <td>${date.toLocaleDateString()} ${date.toLocaleTimeString()}</td>
+                </tr>`;
+            });
+            html += '</tbody></table>';
+            container.innerHTML = html;
+        }
+        
+        async function loadCategories() {
+            try {
+                const res = await fetch('/api/categories');
+                allCategories = await res.json();
+                
+                const select = document.getElementById('assetCategory');
+                const select2 = document.getElementById('maintenanceAsset');
+                
+                select.innerHTML = '<option value="">Select Category</option>';
+                allCategories.forEach(cat => {
+                    const opt = document.createElement('option');
+                    opt.value = cat.id;
+                    opt.textContent = cat.name;
+                    select.appendChild(opt);
+                });
+            } catch (error) {
+                console.log('Categories load failed');
+            }
+        }
+        
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+            document.getElementById(tabName).classList.add('active');
+            
+            document.querySelectorAll('.sidebar-menu a').forEach(a => a.classList.remove('active'));
+            event.target.closest('a').classList.add('active');
+            
+            if (tabName === 'assets') {
+                loadAssets();
+            } else if (tabName === 'maintenance') {
+                loadMaintenance();
+            } else if (tabName === 'history') {
+                loadHistory();
+            } else if (tabName === 'categories') {
+                loadCategoriesView();
+            } else if (tabName === 'departments') {
+                loadDepartmentsView();
+            }
+        }
+        
+        async function loadAssets() {
+            try {
+                const res = await fetch('/api/assets');
+                allAssets = await res.json();
+                renderAssets(allAssets);
+            } catch (error) {
+                showAlert('Error loading assets', 'error');
+            }
+        }
+        
+        function renderAssets(assets) {
+            const container = document.getElementById('assetsTable');
+            if (assets.length === 0) {
+                container.innerHTML = '<div class="empty-state"><div class="empty-state-icon">📦</div><p>No assets found</p></div>';
+                return;
+            }
+            
+            let html = '<table class="table"><thead><tr><th>Name</th><th>Serial Number</th><th>Category</th><th>Status</th><th>Assigned To</th><th>Actions</th></tr></thead><tbody>';
+            assets.forEach(asset => {
+                const category = allCategories.find(c => c.id === asset.categoryId)?.name || '-';
+                html += `<tr>
+                    <td>${asset.name}</td>
+                    <td>${asset.serialNumber}</td>
+                    <td>${category}</td>
+                    <td><span class="status-badge status-${asset.status.toLowerCase().replace(' ', '-')}">${asset.status}</span></td>
+                    <td>${asset.assignedTo || '-'}</td>
+                    <td>
+                        <button class="btn-sm btn-edit" onclick="editAsset(${asset.id})">Edit</button>
+                        <button class="btn-sm btn-delete" onclick="deleteAsset(${asset.id})">Delete</button>
+                    </td>
+                </tr>`;
+            });
+            html += '</tbody></table>';
+            container.innerHTML = html;
+        }
+        
+        function filterAssets(status) {
+            const filtered = status === 'all' ? allAssets : allAssets.filter(a => a.status === status);
+            renderAssets(filtered);
+            
+            document.querySelectorAll('.tabs .tab-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+        }
+        
+        function openAddAssetModal() {
+            currentAssetId = null;
+            document.getElementById('assetForm').reset();
+            document.querySelector('#assetModal .modal-header h2').textContent = 'Add Asset';
+            openModal('assetModal');
+        }
+        
+        function editAsset(id) {
+            const asset = allAssets.find(a => a.id === id);
+            if (!asset) return;
+            
+            currentAssetId = id;
+            document.getElementById('assetName').value = asset.name;
+            document.getElementById('assetSerial').value = asset.serialNumber;
+            document.getElementById('assetCategory').value = asset.categoryId || '';
+            document.getElementById('assetLocation').value = asset.location || '';
+            document.getElementById('assetPrice').value = asset.price || '';
+            document.getElementById('assetStatus').value = asset.status;
+            document.getElementById('assetAssigned').value = asset.assignedTo || '';
+            
+            document.querySelector('#assetModal .modal-header h2').textContent = 'Edit Asset';
+            openModal('assetModal');
+        }
+        
+        async function saveAsset(e) {
+            e.preventDefault();
+            
+            const asset = {
+                name: document.getElementById('assetName').value,
+                serialNumber: document.getElementById('assetSerial').value,
+                categoryId: document.getElementById('assetCategory').value || null,
+                location: document.getElementById('assetLocation').value,
+                price: document.getElementById('assetPrice').value || null,
+                status: document.getElementById('assetStatus').value,
+                assignedTo: document.getElementById('assetAssigned').value,
+                createdBy: currentUser.fullName,
+                modifiedBy: currentUser.fullName
+            };
+            
+            try {
+                const url = currentAssetId ? `/api/assets/${currentAssetId}` : '/api/assets';
+                const method = currentAssetId ? 'PUT' : 'POST';
+                
+                const res = await fetch(url, {
+                    method: method,
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(asset)
+                });
+                
+                if (res.ok) {
+                    showAlert(currentAssetId ? 'Asset updated successfully' : 'Asset added successfully', 'success');
+                    closeModal('assetModal');
+                    loadAssets();
+                } else {
+                    showAlert('Error saving asset', 'error');
+                }
+            } catch (error) {
+                showAlert('Network error', 'error');
+            }
+        }
+        
+        async function deleteAsset(id) {
+            if (!confirm('Are you sure you want to delete this asset?')) return;
+            
+            try {
+                const res = await fetch(`/api/assets/${id}`, { method: 'DELETE' });
+                if (res.ok) {
+                    showAlert('Asset deleted successfully', 'success');
+                    loadAssets();
+                } else {
+                    showAlert('Error deleting asset', 'error');
+                }
+            } catch (error) {
+                showAlert('Network error', 'error');
+            }
+        }
+        
+        async function loadMaintenance() {
+            try {
+                const res = await fetch('/api/maintenance');
+                const maintenance = await res.json();
+                
+                const container = document.getElementById('maintenanceTable');
+                if (maintenance.length === 0) {
+                    container.innerHTML = '<div class="empty-state"><div class="empty-state-icon">🔧</div><p>No maintenance records</p></div>';
+                    return;
+                }
+                
+                let html = '<table class="table"><thead><tr><th>Asset</th><th>Type</th><th>Date</th><th>Cost</th><th>Performed By</th></tr></thead><tbody>';
+                maintenance.forEach(m => {
+                    const date = new Date(m.date).toLocaleDateString();
+                    html += `<tr><td>${allAssets.find(a => a.id === m.assetId)?.name || 'Unknown'}</td><td>${m.type}</td><td>${date}</td><td>$${m.cost || 0}</td><td>${m.performedBy}</td></tr>`;
+                });
+                html += '</tbody></table>';
+                container.innerHTML = html;
+            } catch (error) {
+                showAlert('Error loading maintenance records', 'error');
+            }
+        }
+        
+        function openAddMaintenanceModal() {
+            document.getElementById('maintenanceForm').reset();
+            
+            const select = document.getElementById('maintenanceAsset');
+            select.innerHTML = '<option value="">Select Asset</option>';
+            allAssets.forEach(asset => {
+                const opt = document.createElement('option');
+                opt.value = asset.id;
+                opt.textContent = asset.name;
+                select.appendChild(opt);
+            });
+            
+            openModal('maintenanceModal');
+        }
+        
+        async function saveMaintenance(e) {
+            e.preventDefault();
+            
+            const maintenance = {
+                assetId: parseInt(document.getElementById('maintenanceAsset').value),
+                type: document.getElementById('maintenanceType').value,
+                description: document.getElementById('maintenanceDesc').value,
+                cost: document.getElementById('maintenanceCost').value || null,
+                performedBy: document.getElementById('maintenancePerformedBy').value
+            };
+            
+            try {
+                const res = await fetch('/api/maintenance', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(maintenance)
+                });
+                
+                if (res.ok) {
+                    showAlert('Maintenance record added successfully', 'success');
+                    closeModal('maintenanceModal');
+                    loadMaintenance();
+                } else {
+                    showAlert('Error saving record', 'error');
+                }
+            } catch (error) {
+                showAlert('Network error', 'error');
+            }
+        }
+        
+        async function loadHistory() {
+            try {
+                const res = await fetch('/api/history?limit=100');
+                const history = await res.json();
+                
+                const container = document.getElementById('historyTable');
+                if (history.length === 0) {
+                    container.innerHTML = '<div class="empty-state"><div class="empty-state-icon">📋</div><p>No history records</p></div>';
+                    return;
+                }
+                
+                let html = '<table class="table"><thead><tr><th>Asset</th><th>Action</th><th>User</th><th>Date & Time</th></tr></thead><tbody>';
+                history.forEach(h => {
+                    const date = new Date(h.timestamp);
+                    html += `<tr><td>${h.assetName}</td><td>${h.action}</td><td>${h.user}</td><td>${date.toLocaleString()}</td></tr>`;
+                });
+                html += '</tbody></table>';
+                container.innerHTML = html;
+            } catch (error) {
+                showAlert('Error loading history', 'error');
+            }
+        }
+        
+        async function loadCategoriesView() {
+            try {
+                const res = await fetch('/api/categories');
+                const categories = await res.json();
+                
+                const container = document.getElementById('categoriesTable');
+                if (categories.length === 0) {
+                    container.innerHTML = '<div class="empty-state"><div class="empty-state-icon">🏷️</div><p>No categories</p></div>';
+                    return;
+                }
+                
+                let html = '<table class="table"><thead><tr><th>Name</th><th>Description</th></tr></thead><tbody>';
+                categories.forEach(cat => {
+                    html += `<tr><td><span style="display: inline-block; width: 12px; height: 12px; background: ${cat.color}; border-radius: 2px; margin-right: 8px;"></span>${cat.name}</td><td>${cat.description || '-'}</td></tr>`;
+                });
+                html += '</tbody></table>';
+                container.innerHTML = html;
+            } catch (error) {
+                showAlert('Error loading categories', 'error');
+            }
+        }
+        
+        function openAddCategoryModal() {
+            document.getElementById('categoryForm').reset();
+            openModal('categoryModal');
+        }
+        
+        async function saveCategory(e) {
+            e.preventDefault();
+            
+            const category = {
+                name: document.getElementById('categoryName').value,
+                description: document.getElementById('categoryDesc').value,
+                color: document.getElementById('categoryColor').value
+            };
+            
+            try {
+                const res = await fetch('/api/categories', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(category)
+                });
+                
+                if (res.ok) {
+                    showAlert('Category added successfully', 'success');
+                    closeModal('categoryModal');
+                    loadCategoriesView();
+                    loadCategories();
+                } else {
+                    showAlert('Error saving category', 'error');
+                }
+            } catch (error) {
+                showAlert('Network error', 'error');
+            }
+        }
+        
+        async function loadDepartmentsView() {
+            try {
+                const res = await fetch('/api/departments');
+                const departments = await res.json();
+                
+                const container = document.getElementById('departmentsTable');
+                if (departments.length === 0) {
+                    container.innerHTML = '<div class="empty-state"><div class="empty-state-icon">🏢</div><p>No departments</p></div>';
+                    return;
+                }
+                
+                let html = '<table class="table"><thead><tr><th>Name</th><th>Description</th><th>Head</th></tr></thead><tbody>';
+                departments.forEach(dept => {
+                    html += `<tr><td>${dept.name}</td><td>${dept.description || '-'}</td><td>${dept.head || '-'}</td></tr>`;
+                });
+                html += '</tbody></table>';
+                container.innerHTML = html;
+            } catch (error) {
+                showAlert('Error loading departments', 'error');
+            }
+        }
+        
+        function openAddDepartmentModal() {
+            document.getElementById('departmentForm').reset();
+            openModal('departmentModal');
+        }
+        
+        async function saveDepartment(e) {
+            e.preventDefault();
+            
+            const department = {
+                name: document.getElementById('departmentName').value,
+                description: document.getElementById('departmentDesc').value,
+                head: document.getElementById('departmentHead').value
+            };
+            
+            try {
+                const res = await fetch('/api/departments', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(department)
+                });
+                
+                if (res.ok) {
+                    showAlert('Department added successfully', 'success');
+                    closeModal('departmentModal');
+                    loadDepartmentsView();
+                } else {
+                    showAlert('Error saving department', 'error');
+                }
+            } catch (error) {
+                showAlert('Network error', 'error');
+            }
+        }
+        
+        function openModal(id) {
+            document.getElementById(id).classList.add('active');
+        }
+        
+        function closeModal(id) {
+            document.getElementById(id).classList.remove('active');
+        }
+        
+        function showAlert(message, type) {
+            const alert = document.getElementById('alertBox');
+            alert.textContent = message;
+            alert.className = `alert show alert-${type}`;
+            if (type === 'success') {
+                setTimeout(() => alert.classList.remove('show'), 3000);
+            }
+        }
+        
+        function logout() {
+            localStorage.removeItem('user');
+            window.location.href = '/login';
+        }
+        
+        // Close modal when clicking outside
+        window.onclick = (event) => {
+            if (event.target.classList.contains('modal')) {
+                event.target.classList.remove('active');
+            }
+        };
+    </script>
+</body>
+</html>
