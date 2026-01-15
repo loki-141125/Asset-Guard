@@ -56,36 +56,83 @@ class ApiController {
     // --- AUTHENTICATION ENDPOINTS ---
     @PostMapping("/register")
     public ResponseEntity<?> register(@RequestBody UserDTO dto) {
-        if (userRepo.findByEmail(dto.getEmail()).isPresent()) {
-            return ResponseEntity.badRequest().body(new ApiResponse("Email already exists"));
+        // Validation
+        if (dto.getEmail() == null || dto.getEmail().trim().isEmpty()) {
+            return ResponseEntity.badRequest().body(new ApiResponse("Email is required"));
         }
+        if (!dto.getEmail().matches("^[A-Za-z0-9+_.-]+@(.+)$")) {
+            return ResponseEntity.badRequest().body(new ApiResponse("Invalid email format"));
+        }
+        if (dto.getPassword() == null || dto.getPassword().length() < 8) {
+            return ResponseEntity.badRequest().body(new ApiResponse("Password must be at least 8 characters"));
+        }
+        if (dto.getFirstName() == null || dto.getFirstName().trim().isEmpty()) {
+            return ResponseEntity.badRequest().body(new ApiResponse("First name is required"));
+        }
+        
+        if (userRepo.findByEmail(dto.getEmail()).isPresent()) {
+            return ResponseEntity.badRequest().body(new ApiResponse("Email already registered"));
+        }
+        
         User user = new User();
-        user.setEmail(dto.getEmail());
-        user.setFullName(dto.getFullName());
+        user.setEmail(dto.getEmail().toLowerCase().trim());
+        user.setFirstName(dto.getFirstName().trim());
+        user.setLastName(dto.getLastName() != null ? dto.getLastName().trim() : "");
         user.setPassword(passwordEncoder.encode(dto.getPassword()));
         user.setRole("ROLE_USER");
         user.setDepartmentId(dto.getDepartmentId());
-        userRepo.save(user);
-        return ResponseEntity.ok(new ApiResponse("Registration successful"));
+        user.setCreatedAt(new java.util.Date());
+        
+        User savedUser = userRepo.save(user);
+        
+        // Log action
+        History h = new History();
+        h.setAction("REGISTER");
+        h.setDescription("User " + user.getEmail() + " registered");
+        h.setUserId(savedUser.getId());
+        h.setTimestamp(new java.util.Date());
+        historyRepo.save(h);
+        
+        return ResponseEntity.ok(new ApiResponse("Registration successful. Please sign in."));
     }
 
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody LoginDTO dto) {
-        Optional<User> userOpt = userRepo.findByEmail(dto.getEmail());
-        if (!userOpt.isPresent()) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new ApiResponse("Invalid credentials"));
+        // Validation
+        if (dto.getEmail() == null || dto.getPassword() == null) {
+            return ResponseEntity.badRequest().body(new ApiResponse("Email and password required"));
         }
+        
+        Optional<User> userOpt = userRepo.findByEmail(dto.getEmail().toLowerCase().trim());
+        if (!userOpt.isPresent()) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new ApiResponse("Invalid email or password"));
+        }
+        
         User user = userOpt.get();
         if (!passwordEncoder.matches(dto.getPassword(), user.getPassword())) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new ApiResponse("Invalid credentials"));
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new ApiResponse("Invalid email or password"));
         }
+        
+        // Log login action
+        History h = new History();
+        h.setAction("LOGIN");
+        h.setDescription("User " + user.getEmail() + " logged in");
+        h.setUserId(user.getId());
+        h.setTimestamp(new java.util.Date());
+        historyRepo.save(h);
+        
         Map<String, Object> response = new HashMap<>();
-        response.put("id", user.getId());
-        response.put("email", user.getEmail());
-        response.put("fullName", user.getFullName());
-        response.put("role", user.getRole());
-        response.put("departmentId", user.getDepartmentId());
         response.put("success", true);
+        response.put("user", new HashMap<String, Object>() {{
+            put("id", user.getId());
+            put("email", user.getEmail());
+            put("firstName", user.getFirstName());
+            put("lastName", user.getLastName());
+            put("role", user.getRole());
+            put("departmentId", user.getDepartmentId());
+        }});
+        response.put("message", "Login successful");
+        
         return ResponseEntity.ok(response);
     }
 
@@ -244,11 +291,11 @@ class ApiController {
     }
 
     // --- UTILITY METHODS ---
-    private void log(String assetName, String action, String user) {
+    private void logAction(String assetName, String action, Long userId) {
         History h = new History();
         h.setAssetName(assetName);
         h.setAction(action);
-        h.setUser(user != null ? user : "System");
+        h.setUserId(userId);
         h.setTimestamp(new Date());
         historyRepo.save(h);
     }
@@ -267,15 +314,18 @@ class PageController {
 class UserDTO {
     public String email;
     public String password;
-    public String fullName;
+    public String firstName;
+    public String lastName;
     public Long departmentId;
     
     public String getEmail() { return email; }
     public void setEmail(String email) { this.email = email; }
     public String getPassword() { return password; }
     public void setPassword(String password) { this.password = password; }
-    public String getFullName() { return fullName; }
-    public void setFullName(String fullName) { this.fullName = fullName; }
+    public String getFirstName() { return firstName; }
+    public void setFirstName(String firstName) { this.firstName = firstName; }
+    public String getLastName() { return lastName; }
+    public void setLastName(String lastName) { this.lastName = lastName; }
     public Long getDepartmentId() { return departmentId; }
     public void setDepartmentId(Long departmentId) { this.departmentId = departmentId; }
 }
@@ -300,20 +350,23 @@ class ApiResponse {
 class User {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY) private Long id;
     private String email;
-    private String fullName;
+    private String firstName;
+    private String lastName;
     private String password;
     private String role;
     private Long departmentId;
     private boolean active = true;
-    private Date createdDate = new Date();
+    private Date createdAt = new Date();
 
     // Getters and Setters
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
     public String getEmail() { return email; }
     public void setEmail(String email) { this.email = email; }
-    public String getFullName() { return fullName; }
-    public void setFullName(String fullName) { this.fullName = fullName; }
+    public String getFirstName() { return firstName; }
+    public void setFirstName(String firstName) { this.firstName = firstName; }
+    public String getLastName() { return lastName; }
+    public void setLastName(String lastName) { this.lastName = lastName; }
     public String getPassword() { return password; }
     public void setPassword(String password) { this.password = password; }
     public String getRole() { return role; }
@@ -322,8 +375,8 @@ class User {
     public void setDepartmentId(Long departmentId) { this.departmentId = departmentId; }
     public boolean isActive() { return active; }
     public void setActive(boolean active) { this.active = active; }
-    public Date getCreatedDate() { return createdDate; }
-    public void setCreatedDate(Date createdDate) { this.createdDate = createdDate; }
+    public Date getCreatedAt() { return createdAt; }
+    public void setCreatedAt(Date createdAt) { this.createdAt = createdAt; }
 }
 
 @Entity @Table(name = "assets")
@@ -373,7 +426,8 @@ class History {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY) private Long id;
     private String assetName;
     private String action;
-    private String user;
+    private String description;
+    private Long userId;
     private Date timestamp;
 
     // Getters and Setters
@@ -383,8 +437,10 @@ class History {
     public void setAssetName(String assetName) { this.assetName = assetName; }
     public String getAction() { return action; }
     public void setAction(String action) { this.action = action; }
-    public String getUser() { return user; }
-    public void setUser(String user) { this.user = user; }
+    public String getDescription() { return description; }
+    public void setDescription(String description) { this.description = description; }
+    public Long getUserId() { return userId; }
+    public void setUserId(Long userId) { this.userId = userId; }
     public Date getTimestamp() { return timestamp; }
     public void setTimestamp(Date timestamp) { this.timestamp = timestamp; }
 }

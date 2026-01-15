@@ -9,741 +9,385 @@
         
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f8f9fa;
             color: #333;
             line-height: 1.6;
         }
-        
-        /* HEADER/NAV */
+
+        /* HEADER */
         header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 20px 50px;
+            background: rgba(255, 255, 255, 0.98);
+            padding: 1rem 2rem;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
         }
-        
+
         .logo {
             font-size: 28px;
             font-weight: bold;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
             display: flex;
             align-items: center;
             gap: 10px;
         }
-        
+
         nav {
             display: flex;
-            gap: 30px;
+            gap: 2.5rem;
             align-items: center;
         }
-        
+
         nav a {
-            color: white;
+            color: #333;
             text-decoration: none;
-            transition: all 0.3s ease;
             font-weight: 500;
+            transition: color 0.3s;
         }
-        
+
         nav a:hover {
-            opacity: 0.8;
-        }
-        
-        .btn-login {
-            background: white;
             color: #667eea;
-            padding: 10px 20px;
-            border-radius: 6px;
-            font-weight: 600;
+        }
+
+        .nav-buttons {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .btn-signin {
+            padding: 0.75rem 1.5rem;
+            border: 2px solid #667eea;
+            color: #667eea;
+            background: transparent;
+            border-radius: 8px;
             cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn-signin:hover {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-signup {
+            padding: 0.75rem 1.5rem;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
             border: none;
-            transition: all 0.3s ease;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: inline-block;
         }
-        
-        .btn-login:hover {
+
+        .btn-signup:hover {
             transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
         }
-        
+
         /* HERO SECTION */
         .hero {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
-            padding: 100px 50px;
+            padding: 6rem 2rem;
             text-align: center;
-            position: relative;
-            overflow: hidden;
+            min-height: 600px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
-        
-        .hero::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 600"><circle cx="200" cy="200" r="150" fill="rgba(255,255,255,0.05)"/><circle cx="900" cy="400" r="200" fill="rgba(255,255,255,0.05)"/></svg>');
-            pointer-events: none;
-        }
-        
+
         .hero-content {
-            position: relative;
-            z-index: 1;
             max-width: 800px;
-            margin: 0 auto;
         }
-        
+
         .hero h1 {
-            font-size: 56px;
-            margin-bottom: 20px;
+            font-size: 3.5rem;
+            margin-bottom: 1.5rem;
             font-weight: 700;
             line-height: 1.2;
         }
-        
+
         .hero p {
-            font-size: 20px;
-            margin-bottom: 30px;
+            font-size: 1.2rem;
+            margin-bottom: 2.5rem;
             opacity: 0.95;
         }
-        
-        .cta-buttons {
+
+        .hero-buttons {
             display: flex;
-            gap: 20px;
+            gap: 1rem;
             justify-content: center;
+            flex-wrap: wrap;
         }
-        
+
         .btn-primary {
+            padding: 1rem 2rem;
             background: white;
             color: #667eea;
-            padding: 14px 40px;
-            border-radius: 8px;
             border: none;
-            font-weight: 600;
+            border-radius: 8px;
             cursor: pointer;
-            font-size: 16px;
-            transition: all 0.3s ease;
+            font-weight: 700;
+            font-size: 1rem;
+            transition: all 0.3s;
             text-decoration: none;
             display: inline-block;
         }
-        
+
         .btn-primary:hover {
             transform: translateY(-3px);
-            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
         }
-        
+
         .btn-secondary {
+            padding: 1rem 2rem;
             background: transparent;
             color: white;
-            padding: 14px 40px;
-            border-radius: 8px;
             border: 2px solid white;
-            font-weight: 600;
+            border-radius: 8px;
             cursor: pointer;
-            font-size: 16px;
-            transition: all 0.3s ease;
+            font-weight: 700;
+            font-size: 1rem;
+            transition: all 0.3s;
             text-decoration: none;
             display: inline-block;
         }
-        
+
         .btn-secondary:hover {
             background: white;
             color: #667eea;
-            transform: translateY(-3px);
         }
-        
-        /* FEATURES SECTION */
+
+        /* FEATURES */
         .features {
-            padding: 80px 50px;
-            background: #f5f7fa;
+            padding: 5rem 2rem;
+            background: white;
         }
-        
+
         .section-title {
             text-align: center;
-            font-size: 42px;
-            margin-bottom: 50px;
-            color: #2c3e50;
+            font-size: 2.8rem;
+            margin-bottom: 3.5rem;
+            color: #333;
         }
-        
+
         .features-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 30px;
+            gap: 2rem;
             max-width: 1200px;
             margin: 0 auto;
         }
-        
+
         .feature-card {
-            background: white;
-            padding: 30px;
-            border-radius: 10px;
-            box-shadow: 0 5px 20px rgba(0,0,0,0.08);
-            transition: all 0.3s ease;
+            background: #f8f9fa;
+            padding: 2.5rem;
+            border-radius: 12px;
+            transition: all 0.3s;
             text-align: center;
         }
-        
+
         .feature-card:hover {
-            transform: translateY(-10px);
-            box-shadow: 0 15px 40px rgba(0,0,0,0.15);
+            transform: translateY(-8px);
+            box-shadow: 0 15px 40px rgba(102, 126, 234, 0.15);
+            background: white;
         }
-        
+
         .feature-icon {
-            font-size: 48px;
-            margin-bottom: 15px;
+            font-size: 3rem;
+            margin-bottom: 1rem;
         }
-        
+
         .feature-card h3 {
-            font-size: 20px;
-            margin-bottom: 10px;
+            font-size: 1.4rem;
+            margin-bottom: 1rem;
             color: #667eea;
         }
-        
+
         .feature-card p {
             color: #666;
-            line-height: 1.8;
+            font-size: 0.95rem;
         }
-        
-        /* BENEFITS SECTION */
-        .benefits {
-            padding: 80px 50px;
-            background: white;
-        }
-        
-        .benefits-content {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 60px;
-            align-items: center;
-            max-width: 1200px;
-            margin: 0 auto;
-        }
-        
-        .benefits-text h2 {
-            font-size: 36px;
-            margin-bottom: 20px;
-            color: #2c3e50;
-        }
-        
-        .benefits-list {
-            margin: 30px 0;
-        }
-        
-        .benefit-item {
-            display: flex;
-            gap: 15px;
-            margin-bottom: 15px;
-        }
-        
-        .benefit-icon {
-            width: 24px;
-            height: 24px;
-            background: #667eea;
-            color: white;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-shrink: 0;
-            font-weight: bold;
-        }
-        
-        .benefit-item p {
-            color: #666;
-        }
-        
-        .benefits-image {
+
+        /* STATS */
+        .stats {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            border-radius: 10px;
-            padding: 40px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
             color: white;
-            font-size: 80px;
-            min-height: 300px;
+            padding: 4rem 2rem;
+            text-align: center;
         }
-        
-        /* PRICING SECTION */
-        .pricing {
-            padding: 80px 50px;
-            background: #f5f7fa;
-        }
-        
-        .pricing-grid {
+
+        .stats-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 30px;
-            max-width: 1200px;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 2rem;
+            max-width: 1000px;
             margin: 0 auto;
         }
-        
-        .pricing-card {
-            background: white;
-            border-radius: 10px;
-            padding: 40px;
-            text-align: center;
-            box-shadow: 0 5px 20px rgba(0,0,0,0.08);
-            transition: all 0.3s ease;
+
+        .stat-item h4 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
         }
-        
-        .pricing-card.featured {
-            border-top: 4px solid #667eea;
-            transform: scale(1.05);
+
+        .stat-item p {
+            opacity: 0.9;
         }
-        
-        .pricing-card:hover {
-            box-shadow: 0 15px 40px rgba(0,0,0,0.15);
-        }
-        
-        .pricing-card h3 {
-            font-size: 20px;
-            margin-bottom: 15px;
-            color: #2c3e50;
-        }
-        
-        .price {
-            font-size: 42px;
-            font-weight: bold;
-            color: #667eea;
-            margin: 20px 0;
-        }
-        
-        .price span {
-            font-size: 16px;
-            color: #666;
-        }
-        
-        .pricing-features {
-            list-style: none;
-            margin: 30px 0;
-            text-align: left;
-        }
-        
-        .pricing-features li {
-            padding: 10px 0;
-            border-bottom: 1px solid #eee;
-            color: #666;
-        }
-        
-        .pricing-features li:before {
-            content: '✓ ';
-            color: #667eea;
-            font-weight: bold;
-            margin-right: 8px;
-        }
-        
-        .pricing-card .btn-primary {
-            width: 100%;
-            margin-top: 20px;
-            color: #667eea;
-        }
-        
-        /* CTA SECTION */
+
+        /* CTA */
         .cta-section {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 60px 50px;
+            background: white;
+            padding: 4rem 2rem;
             text-align: center;
         }
-        
+
         .cta-section h2 {
-            font-size: 36px;
-            margin-bottom: 20px;
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
         }
-        
+
         .cta-section p {
-            font-size: 18px;
-            margin-bottom: 30px;
+            font-size: 1.1rem;
+            color: #666;
+            margin-bottom: 2rem;
         }
-        
+
         /* FOOTER */
         footer {
             background: #2c3e50;
-            color: #aaa;
-            padding: 40px 50px;
+            color: white;
+            padding: 2rem;
             text-align: center;
         }
-        
-        .footer-content {
-            max-width: 1200px;
-            margin: 0 auto;
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 30px;
-            margin-bottom: 30px;
-            text-align: left;
-        }
-        
-        .footer-section h4 {
-            color: white;
-            margin-bottom: 15px;
-        }
-        
-        .footer-section a {
-            color: #aaa;
-            text-decoration: none;
-            display: block;
-            margin-bottom: 8px;
-            transition: all 0.3s ease;
-        }
-        
-        .footer-section a:hover {
-            color: white;
-        }
-        
-        .footer-bottom {
-            text-align: center;
-            padding-top: 20px;
-            border-top: 1px solid #444;
-        }
-        
-        /* RESPONSIVE */
+
         @media (max-width: 768px) {
-            header {
-                flex-direction: column;
-                gap: 20px;
-                padding: 20px;
-            }
-            
             nav {
-                flex-direction: column;
-                gap: 10px;
+                gap: 1rem;
+                font-size: 0.9rem;
             }
-            
-            .hero {
-                padding: 60px 20px;
-            }
-            
+
             .hero h1 {
-                font-size: 36px;
+                font-size: 2.2rem;
             }
-            
-            .cta-buttons {
+
+            .section-title {
+                font-size: 1.8rem;
+            }
+
+            .hero-buttons {
                 flex-direction: column;
             }
-            
-            .features, .benefits, .pricing {
-                padding: 60px 20px;
-            }
-            
-            .benefits-content {
-                grid-template-columns: 1fr;
-            }
-            
-            .section-title {
-                font-size: 32px;
-            }
-            
-            .pricing-card.featured {
-                transform: scale(1);
+
+            .btn-primary, .btn-secondary {
+                width: 100%;
             }
         }
     </style>
 </head>
 <body>
-    <!-- HEADER -->
     <header>
-        <div class="logo">
-            <span>🛡️</span>
-            <span>AssetGuard</span>
-        </div>
+        <div class="logo">🛡️ AssetGuard</div>
         <nav>
             <a href="#features">Features</a>
-            <a href="#benefits">Benefits</a>
-            <a href="#pricing">Pricing</a>
-            <button class="btn-login" onclick="location.href='/login'">Sign In</button>
+            <a href="#about">About</a>
+            <div class="nav-buttons">
+                <a href="/login" class="btn-signin">Sign In</a>
+                <a href="/register" class="btn-signup">Sign Up</a>
+            </div>
         </nav>
     </header>
-    
-    <!-- HERO SECTION -->
+
     <section class="hero">
         <div class="hero-content">
-            <h1>Professional Asset Management System</h1>
-            <p>Track, manage, and optimize your organizational assets with real-time insights and complete control.</p>
-            <div class="cta-buttons">
-                <button class="btn-primary" onclick="location.href='/login'">Get Started</button>
-                <button class="btn-secondary" onclick="location.href='/register'">Create Account</button>
+            <h1>Professional Asset Management Made Simple</h1>
+            <p>Track, manage, and optimize your organization's assets with real-time insights and complete control. Enterprise-grade solution for asset lifecycle management.</p>
+            <div class="hero-buttons">
+                <a href="/register" class="btn-primary">Get Started Now</a>
+                <a href="#features" class="btn-secondary">Learn More</a>
             </div>
         </div>
     </section>
-    
-    <!-- FEATURES SECTION -->
+
     <section class="features" id="features">
         <h2 class="section-title">Powerful Features</h2>
         <div class="features-grid">
             <div class="feature-card">
-                <div class="feature-icon">📦</div>
-                <h3>Asset Inventory</h3>
-                <p>Comprehensive asset tracking with detailed information, serial numbers, locations, and status management.</p>
+                <div class="feature-icon">📱</div>
+                <h3>Asset Tracking</h3>
+                <p>Real-time tracking of all organizational assets with detailed information and status.</p>
             </div>
-            
+            <div class="feature-card">
+                <div class="feature-icon">🔒</div>
+                <h3>Secure Authentication</h3>
+                <p>Enterprise-grade security with encrypted passwords and secure user authentication.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">📊</div>
+                <h3>Real-time Dashboard</h3>
+                <p>Comprehensive dashboard with live statistics and key performance indicators.</p>
+            </div>
             <div class="feature-card">
                 <div class="feature-icon">🔧</div>
                 <h3>Maintenance Management</h3>
-                <p>Schedule and track maintenance records, costs, and service history for all your assets.</p>
+                <p>Track maintenance records, schedule services, and monitor maintenance costs.</p>
             </div>
-            
-            <div class="feature-card">
-                <div class="feature-icon">📊</div>
-                <h3>Real-time Analytics</h3>
-                <p>Get instant insights with comprehensive dashboards, statistics, and asset value tracking.</p>
-            </div>
-            
-            <div class="feature-card">
-                <div class="feature-icon">🔐</div>
-                <h3>Secure Authentication</h3>
-                <p>Advanced security features with encrypted passwords and role-based access control.</p>
-            </div>
-            
             <div class="feature-card">
                 <div class="feature-icon">📋</div>
                 <h3>Audit Logging</h3>
-                <p>Complete audit trail of all actions with timestamps, user information, and change history.</p>
+                <p>Complete audit trail of all system activities for compliance and accountability.</p>
             </div>
-            
             <div class="feature-card">
-                <div class="feature-icon">🏢</div>
-                <h3>Department Management</h3>
-                <p>Organize assets by departments, categories, and custom classifications.</p>
+                <div class="feature-icon">🎯</div>
+                <h3>Advanced Search</h3>
+                <p>Powerful search and filtering capabilities to find assets instantly.</p>
             </div>
         </div>
     </section>
-    
-    <!-- BENEFITS SECTION -->
-    <section class="benefits" id="benefits">
-        <h2 class="section-title">Why Choose AssetGuard?</h2>
-        <div class="benefits-content">
-            <div class="benefits-text">
-                <h2>Streamline Your Asset Management</h2>
-                <p>AssetGuard provides a comprehensive solution for managing organizational assets efficiently, reducing costs, and improving decision-making.</p>
-                
-                <div class="benefits-list">
-                    <div class="benefit-item">
-                        <div class="benefit-icon">✓</div>
-                        <p><strong>Cost Reduction:</strong> Identify underutilized assets and optimize spending</p>
-                    </div>
-                    
-                    <div class="benefit-item">
-                        <div class="benefit-icon">✓</div>
-                        <p><strong>Compliance:</strong> Maintain detailed records for audits and regulatory requirements</p>
-                    </div>
-                    
-                    <div class="benefit-item">
-                        <div class="benefit-icon">✓</div>
-                        <p><strong>Efficiency:</strong> Reduce time spent on manual asset tracking</p>
-                    </div>
-                    
-                    <div class="benefit-item">
-                        <div class="benefit-icon">✓</div>
-                        <p><strong>Visibility:</strong> Know exactly where every asset is and its current status</p>
-                    </div>
-                    
-                    <div class="benefit-item">
-                        <div class="benefit-icon">✓</div>
-                        <p><strong>Maintenance:</strong> Never miss scheduled maintenance with automated tracking</p>
-                    </div>
-                </div>
-                
-                <button class="btn-primary" onclick="location.href='/register'" style="margin-top: 30px; width: auto;">Start Free Trial</button>
+
+    <section class="stats">
+        <h2 class="section-title" style="color: white;">Why Choose AssetGuard?</h2>
+        <div class="stats-grid">
+            <div class="stat-item">
+                <h4>100%</h4>
+                <p>Uptime SLA</p>
             </div>
-            
-            <div class="benefits-image">
-                📈
+            <div class="stat-item">
+                <h4>23+</h4>
+                <p>API Endpoints</p>
+            </div>
+            <div class="stat-item">
+                <h4>6</h4>
+                <p>Managed Entities</p>
+            </div>
+            <div class="stat-item">
+                <h4>24/7</h4>
+                <p>Support</p>
             </div>
         </div>
     </section>
-    
-    <!-- PRICING SECTION -->
-    <section class="pricing" id="pricing">
-        <h2 class="section-title">Simple Pricing</h2>
-        <div class="pricing-grid">
-            <div class="pricing-card">
-                <h3>Starter</h3>
-                <div class="price">$29<span>/month</span></div>
-                <ul class="pricing-features">
-                    <li>Up to 100 assets</li>
-                    <li>Basic reporting</li>
-                    <li>Email support</li>
-                    <li>1 user account</li>
-                </ul>
-                <button class="btn-primary">Get Started</button>
-            </div>
-            
-            <div class="pricing-card featured">
-                <h3>Professional</h3>
-                <div class="price">$99<span>/month</span></div>
-                <ul class="pricing-features">
-                    <li>Unlimited assets</li>
-                    <li>Advanced analytics</li>
-                    <li>Priority support</li>
-                    <li>Up to 10 users</li>
-                    <li>Custom categories</li>
-                </ul>
-                <button class="btn-primary">Get Started</button>
-            </div>
-            
-            <div class="pricing-card">
-                <h3>Enterprise</h3>
-                <div class="price">Custom</div>
-                <ul class="pricing-features">
-                    <li>Unlimited everything</li>
-                    <li>API access</li>
-                    <li>24/7 support</li>
-                    <li>Unlimited users</li>
-                    <li>Custom integration</li>
-                </ul>
-                <button class="btn-primary">Contact Sales</button>
-            </div>
-        </div>
+
+    <section class="cta-section" id="about">
+        <h2>Ready to Transform Your Asset Management?</h2>
+        <p>Join hundreds of organizations using AssetGuard for efficient asset lifecycle management</p>
+        <a href="/register" class="btn-signup" style="margin: 0 auto; display: inline-block;">Create Your Account Today</a>
     </section>
-    
-    <!-- CTA SECTION -->
-    <section class="cta-section">
-        <h2>Ready to transform your asset management?</h2>
-        <p>Join hundreds of organizations using AssetGuard to manage their assets efficiently.</p>
-        <button class="btn-secondary" onclick="location.href='/register'">Start Your Free Trial Today</button>
-    </section>
-    
-    <!-- FOOTER -->
+
     <footer>
-        <div class="footer-content">
-            <div class="footer-section">
-                <h4>Product</h4>
-                <a href="#features">Features</a>
-                <a href="#pricing">Pricing</a>
-                <a href="#">Security</a>
-            </div>
-            
-            <div class="footer-section">
-                <h4>Company</h4>
-                <a href="#">About Us</a>
-                <a href="#">Blog</a>
-                <a href="#">Careers</a>
-            </div>
-            
-            <div class="footer-section">
-                <h4>Support</h4>
-                <a href="#">Documentation</a>
-                <a href="#">Contact Us</a>
-                <a href="#">Status Page</a>
-            </div>
-            
-            <div class="footer-section">
-                <h4>Legal</h4>
-                <a href="#">Privacy Policy</a>
-                <a href="#">Terms of Service</a>
-                <a href="#">Cookie Policy</a>
-            </div>
-        </div>
-        
-        <div class="footer-bottom">
-            <p>&copy; 2024 AssetGuard. All rights reserved.</p>
-        </div>
+        <p>&copy; 2026 AssetGuard. All rights reserved.</p>
+        <p>Professional Asset Management Solution</p>
     </footer>
-</body>
-</html>
-            <div class="card"><div style="color:var(--red); font-size:12px">REPAIR</div><div id="s-rep" class="num" style="color:var(--red)">0</div></div>
-        </div>
-
-        <div class="controls">
-            <input id="name" placeholder="Asset Name" style="flex:2">
-            <input id="serial" placeholder="Serial #" style="flex:1">
-            <button class="add" onclick="addAsset()">+ Add Device</button>
-            <input id="search" placeholder="Search..." style="margin-left:auto" onkeyup="render()">
-        </div>
-
-        <table>
-            <thead><tr><th>Asset</th><th>Assigned To</th><th>Status</th><th>Actions</th></tr></thead>
-            <tbody id="list"></tbody>
-        </table>
-    </div>
-
-    <script>
-        let data = [];
-        async function init() {
-            await Promise.all([loadStats(), loadAssets(), loadLogs()]);
-        }
-
-        async function loadStats() {
-            const res = await fetch('/api/stats');
-            const s = await res.json();
-            document.getElementById('s-total').innerText = s.total;
-            document.getElementById('s-av').innerText = s.available;
-            document.getElementById('s-use').innerText = s.active;
-            document.getElementById('s-rep').innerText = s.repair;
-        }
-
-        async function loadAssets() {
-            const res = await fetch('/api/assets');
-            data = await res.json();
-            render();
-        }
-
-        async function loadLogs() {
-            const res = await fetch('/api/history');
-            const logs = await res.json();
-            document.getElementById('logs').innerHTML = logs.map(l => `
-                <div class="log-entry">
-                    <div style="color:white">${l.assetName}</div>
-                    <div style="color:#94a3b8">${l.action}</div>
-                    <div class="log-time">${new Date(l.timestamp).toLocaleTimeString()}</div>
-                </div>
-            `).join('');
-        }
-
-        function render() {
-            const q = document.getElementById('search').value.toLowerCase();
-            const filtered = data.filter(d => d.name.toLowerCase().includes(q) || d.serialNumber.toLowerCase().includes(q));
-            
-            document.getElementById('list').innerHTML = filtered.map(d => `
-                <tr>
-                    <td><b>${d.name}</b><br><small style="color:#64748b">${d.serialNumber}</small></td>
-                    <td>${d.assignedTo ? '👤 '+d.assignedTo : '<span style="opacity:0.2">--</span>'}</td>
-                    <td><span class="badge ${d.status}">${d.status}</span></td>
-                    <td>
-                        <button class="btn-act" onclick="assign(${d.id})">📲</button>
-                        <button class="btn-act" onclick="repair(${d.id})">🔧</button>
-                        <button class="btn-act" style="color:#ef4444" onclick="del(${d.id})">✖</button>
-                    </td>
-                </tr>
-            `).join('');
-        }
-
-        async function addAsset() {
-            const name = document.getElementById('name').value;
-            const serial = document.getElementById('serial').value;
-            if(!name) return;
-            await fetch('/api/add', {
-                method:'POST', headers:{'Content-Type':'application/json'},
-                body: JSON.stringify({name, serialNumber:serial})
-            });
-            document.getElementById('name').value = '';
-            init();
-        }
-
-        async function assign(id) {
-            const user = prompt("Assign to user:");
-            if(user) await update(id, "In Use", user);
-        }
-
-        async function repair(id) {
-            if(confirm("Send to repair?")) await update(id, "Repair", "Maintenance");
-        }
-
-        async function update(id, status, user) {
-            await fetch('/api/update/'+id, {
-                method:'PUT', headers:{'Content-Type':'application/json'},
-                body: JSON.stringify({status, assignedTo: user})
-            });
-            init();
-        }
-
-        async function del(id) {
-            if(confirm("Delete asset?")) {
-                await fetch('/api/delete/'+id, {method:'DELETE'});
-                init();
-            }
-        }
-        init();
-    </script>
 </body>
 </html>
