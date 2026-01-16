@@ -28,11 +28,14 @@ public class AuthController {
 
     @PostMapping("/register")
     public String registerUser(@ModelAttribute User user, Model model) {
+        System.out.println("Processing registration for: " + user.getUsername());
         if (userService.existsByUsername(user.getUsername())) {
+            System.out.println("Username exists: " + user.getUsername());
             model.addAttribute("error", "Username already exists");
             return "register";
         }
         userService.registerUser(user);
+        System.out.println("Registration successful for: " + user.getUsername());
         return "redirect:/login?success";
     }
 }
