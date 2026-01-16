@@ -383,11 +383,69 @@
         <h2>Ready to Transform Your Asset Management?</h2>
         <p>Join hundreds of organizations using AssetGuard for efficient asset lifecycle management</p>
         <a href="/register" class="btn-signup" style="margin: 0 auto; display: inline-block;">Create Your Account Today</a>
+        <p style="margin-top: 2rem; font-size: 0.95rem; color: #999;">
+            Want to test first? <a href="#" onclick="demoLogin()" style="color: #667eea; font-weight: 600; text-decoration: none;">Try Demo Account</a>
+        </p>
     </section>
 
     <footer>
         <p>&copy; 2026 AssetGuard. All rights reserved.</p>
         <p>Professional Asset Management Solution</p>
     </footer>
+
+    <script>
+        async function demoLogin() {
+            const email = 'demo@assetguard.com';
+            const password = 'Demo1234!';
+            
+            try {
+                const response = await fetch('/api/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    localStorage.setItem('user', JSON.stringify(data.user));
+                    localStorage.setItem('token', data.token || 'authenticated');
+                    window.location.href = '/dashboard';
+                } else {
+                    const firstName = 'Demo';
+                    const lastName = 'User';
+                    const registerResponse = await fetch('/api/register', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ 
+                            email, 
+                            password, 
+                            firstName, 
+                            lastName,
+                            departmentId: 1
+                        })
+                    });
+
+                    if (registerResponse.ok) {
+                        const loginResponse = await fetch('/api/login', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ email, password })
+                        });
+
+                        const loginData = await loginResponse.json();
+                        if (loginResponse.ok) {
+                            localStorage.setItem('user', JSON.stringify(loginData.user));
+                            localStorage.setItem('token', loginData.token || 'authenticated');
+                            window.location.href = '/dashboard';
+                        }
+                    }
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Unable to access demo account. Please sign up instead.');
+            }
+        }
+    </script>
 </body>
 </html>

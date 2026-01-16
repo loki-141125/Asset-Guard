@@ -191,6 +191,34 @@
             margin-right: 8px;
         }
 
+        .password-requirements {
+            margin-top: 10px;
+            padding: 12px;
+            background: #f5f5f5;
+            border-radius: 6px;
+            font-size: 12px;
+            display: none;
+        }
+
+        .password-requirements.show {
+            display: block;
+        }
+
+        .req-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 6px;
+            color: #666;
+        }
+
+        .req-item.met {
+            color: #27ae60;
+        }
+
+        .req-check {
+            margin-right: 8px;
+        }
+
         @keyframes slideIn {
             from {
                 opacity: 0;
@@ -279,6 +307,7 @@
                     placeholder="••••••••" 
                     required
                     minlength="8"
+                    onchange="validatePassword()"
                 >
                 <div id="passwordStrength" class="password-strength">
                     <div class="strength-bar">
@@ -286,6 +315,20 @@
                     </div>
                     <div class="strength-text">
                         Password strength: <span id="strengthText">weak</span>
+                    </div>
+                </div>
+                <div id="passwordReqs" class="password-requirements">
+                    <div class="req-item" id="req-length">
+                        <span class="req-check">○</span> At least 8 characters
+                    </div>
+                    <div class="req-item" id="req-case">
+                        <span class="req-check">○</span> Mix of uppercase and lowercase
+                    </div>
+                    <div class="req-item" id="req-number">
+                        <span class="req-check">○</span> At least one number
+                    </div>
+                    <div class="req-item" id="req-special">
+                        <span class="req-check">○</span> At least one special character
                     </div>
                 </div>
             </div>
@@ -336,14 +379,46 @@
 
         loadDepartments();
 
+        function validatePassword() {
+            const password = document.getElementById('password').value;
+            const reqs = {
+                length: password.length >= 8,
+                case: /[a-z]/.test(password) && /[A-Z]/.test(password),
+                number: /[0-9]/.test(password),
+                special: /[^a-zA-Z0-9]/.test(password)
+            };
+
+            document.getElementById('req-length').classList.toggle('met', reqs.length);
+            document.getElementById('req-length').querySelector('.req-check').textContent = reqs.length ? '✓' : '○';
+            
+            document.getElementById('req-case').classList.toggle('met', reqs.case);
+            document.getElementById('req-case').querySelector('.req-check').textContent = reqs.case ? '✓' : '○';
+            
+            document.getElementById('req-number').classList.toggle('met', reqs.number);
+            document.getElementById('req-number').querySelector('.req-check').textContent = reqs.number ? '✓' : '○';
+            
+            document.getElementById('req-special').classList.toggle('met', reqs.special);
+            document.getElementById('req-special').querySelector('.req-check').textContent = reqs.special ? '✓' : '○';
+
+            return reqs.length && reqs.case && reqs.number && reqs.special;
+        }
+
         document.getElementById('password').addEventListener('input', (e) => {
             const password = e.target.value;
             const strength = calculateStrength(password);
             const strengthEl = document.getElementById('passwordStrength');
+            const reqs = document.getElementById('passwordReqs');
             const fillEl = document.getElementById('strengthFill');
             const textEl = document.getElementById('strengthText');
 
-            strengthEl.classList.add('show');
+            if (password.length > 0) {
+                strengthEl.classList.add('show');
+                reqs.classList.add('show');
+                validatePassword();
+            } else {
+                strengthEl.classList.remove('show');
+                reqs.classList.remove('show');
+            }
 
             const fillClass = ['strength-weak', 'strength-fair', 'strength-good'];
             fillEl.className = `strength-fill ${fillClass[strength]}`;
@@ -378,8 +453,8 @@
                 return;
             }
 
-            if (password.length < 8) {
-                showAlert('Password must be at least 8 characters!', 'error');
+            if (!validatePassword()) {
+                showAlert('Password does not meet all requirements!', 'error');
                 return;
             }
 
@@ -393,7 +468,7 @@
                 lastName: document.getElementById('lastName').value,
                 email: document.getElementById('email').value,
                 password: password,
-                departmentId: document.getElementById('department').value
+                departmentId: document.getElementById('department').value || null
             };
 
             try {

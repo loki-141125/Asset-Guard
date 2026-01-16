@@ -183,6 +183,37 @@
             animation: spin 1s linear infinite;
         }
 
+        .demo-section {
+            margin-top: 25px;
+            padding-top: 25px;
+            border-top: 1px solid #e0e0e0;
+            text-align: center;
+        }
+
+        .demo-btn {
+            width: 100%;
+            padding: 12px;
+            background: #f0f0f0;
+            color: #667eea;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-weight: 700;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .demo-btn:hover {
+            background: #e8e8e8;
+            border-color: #667eea;
+        }
+
+        .demo-info {
+            font-size: 12px;
+            color: #999;
+            margin-top: 10px;
+        }
+
         @keyframes spin {
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
@@ -252,6 +283,12 @@
         <div class="signup-link">
             Don't have an account? <a href="/register">Sign Up Now</a>
         </div>
+
+        <div class="demo-section">
+            <p style="font-size: 13px; color: #666; margin-bottom: 12px;">Try without creating an account</p>
+            <button type="button" class="demo-btn" onclick="handleDemoLogin()">🎯 Try Demo Account</button>
+            <div class="demo-info">Explore all features with a test account</div>
+        </div>
     </div>
 
     <script>
@@ -260,6 +297,62 @@
             alertEl.textContent = message;
             alertEl.className = `alert show alert-${type}`;
             setTimeout(() => alertEl.classList.remove('show'), 5000);
+        }
+
+        async function handleDemoLogin() {
+            const btn = event.target;
+            const originalText = btn.textContent;
+            btn.disabled = true;
+            btn.textContent = '🔄 Loading Demo...';
+
+            try {
+                const demoEmail = 'demo@assetguard.com';
+                const demoPassword = 'Demo1234!';
+
+                let response = await fetch('/api/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email: demoEmail, password: demoPassword })
+                });
+
+                let data = await response.json();
+
+                if (!response.ok) {
+                    const registerResponse = await fetch('/api/register', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ 
+                            email: demoEmail, 
+                            password: demoPassword, 
+                            firstName: 'Demo', 
+                            lastName: 'Account',
+                            departmentId: null
+                        })
+                    });
+
+                    if (registerResponse.ok) {
+                        response = await fetch('/api/login', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ email: demoEmail, password: demoPassword })
+                        });
+                        data = await response.json();
+                    }
+                }
+
+                if (response.ok) {
+                    localStorage.setItem('user', JSON.stringify(data.user));
+                    localStorage.setItem('token', data.token || 'authenticated');
+                    window.location.href = '/dashboard';
+                } else {
+                    showAlert('Demo account unavailable. Please sign up instead.', 'error');
+                }
+            } catch (error) {
+                showAlert('An error occurred. Please try again.', 'error');
+            } finally {
+                btn.disabled = false;
+                btn.textContent = originalText;
+            }
         }
 
         async function handleSignIn(e) {
