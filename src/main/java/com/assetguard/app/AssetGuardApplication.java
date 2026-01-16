@@ -174,7 +174,7 @@ class ApiController {
         if (asset.getStatus() == null) asset.setStatus("Available");
         asset.setCreatedDate(new Date());
         Asset saved = assetRepo.save(asset);
-        log(saved.getName(), "Asset Added", asset.getCreatedBy());
+        logAction(saved.getName(), "Asset Added", asset.getCreatedBy() != null ? Long.parseLong(asset.getCreatedBy()) : null);
         return ResponseEntity.ok(saved);
     }
 
@@ -191,11 +191,11 @@ class ApiController {
         if (data.getStatus() != null) {
             String oldStatus = asset.getStatus();
             asset.setStatus(data.getStatus());
-            log(asset.getName(), "Status: " + oldStatus + " → " + data.getStatus(), data.getModifiedBy());
+            logAction(asset.getName(), "Status: " + oldStatus + " → " + data.getStatus(), data.getModifiedBy() != null ? Long.parseLong(data.getModifiedBy()) : null);
         }
         if (data.getAssignedTo() != null) {
             asset.setAssignedTo(data.getAssignedTo());
-            log(asset.getName(), "Assigned to: " + data.getAssignedTo(), data.getModifiedBy());
+            logAction(asset.getName(), "Assigned to: " + data.getAssignedTo(), data.getModifiedBy() != null ? Long.parseLong(data.getModifiedBy()) : null);
         }
         if (data.getCategoryId() != null) asset.setCategoryId(data.getCategoryId());
         if (data.getLocation() != null) asset.setLocation(data.getLocation());
@@ -214,7 +214,7 @@ class ApiController {
         }
         Asset asset = opt.get();
         assetRepo.deleteById(id);
-        log(asset.getName(), "Asset Deleted", null);
+        logAction(asset.getName(), "Asset Deleted", null);
         return ResponseEntity.ok(new ApiResponse("Asset deleted successfully"));
     }
 
@@ -285,7 +285,7 @@ class ApiController {
         Long assetId = maintenance.getAssetId();
         Asset asset = (assetId != null) ? assetRepo.findById(assetId).orElse(null) : null;
         if (asset != null) {
-            log(asset.getName(), "Maintenance: " + maintenance.getType(), maintenance.getPerformedBy());
+            logAction(asset.getName(), "Maintenance: " + maintenance.getType(), maintenance.getPerformedBy() != null ? Long.parseLong(maintenance.getPerformedBy()) : null);
         }
         return ResponseEntity.ok(saved);
     }
