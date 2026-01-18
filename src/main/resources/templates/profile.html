@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="~{fragments/layout :: head}"></head>
+
+<body class="dashboard-page">
+    <div class="app-layout">
+        <!-- Sidebar -->
+        <aside class="sidebar glass">
+            <div class="sidebar-header">
+                <div class="sidebar-logo">
+                    <i class="fa-solid fa-shield-halved"></i>
+                    <span>AssetGuard</span>
+                </div>
+                <button class="sidebar-toggle" onclick="toggleSidebar()">
+                    <i class="fa-solid fa-bars"></i>
+                </button>
+            </div>
+
+            <nav class="sidebar-nav">
+                <a href="/dashboard" class="nav-item">
+                    <i class="fa-solid fa-gauge-high"></i>
+                    <span>Dashboard</span>
+                </a>
+                <a href="/dashboard" class="nav-item">
+                    <i class="fa-solid fa-cubes"></i>
+                    <span>All Assets</span>
+                </a>
+                <a href="/maintenance" class="nav-item">
+                    <i class="fa-solid fa-wrench"></i>
+                    <span>Maintenance</span>
+                </a>
+                <a href="/profile" class="nav-item active">
+                    <i class="fa-solid fa-user-gear"></i>
+                    <span>Settings</span>
+                </a>
+            </nav>
+
+            <div class="sidebar-footer">
+                <div class="user-info">
+                    <div class="user-avatar" th:text="${user?.firstName?.charAt(0)}">U</div>
+                    <div class="user-details">
+                        <span class="user-name" th:text="${user?.fullName}">User Name</span>
+                        <span class="user-email" th:text="${user?.email}">user@email.com</span>
+                    </div>
+                </div>
+                <a th:href="@{/logout}" class="btn btn-outline btn-small">
+                    <i class="fa-solid fa-sign-out-alt"></i>
+                </a>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <header class="top-bar glass">
+                <h2 style="margin: 0; font-size: 1.5rem;">User Settings</h2>
+            </header>
+
+            <div class="glass" style="max-width: 800px; margin: 0 auto; padding: 2rem;">
+                <div style="display: flex; gap: 2rem; margin-bottom: 2rem; align-items: center;">
+                    <div class="user-avatar" style="width: 100px; height: 100px; font-size: 2.5rem;"
+                        th:text="${user?.firstName?.charAt(0)}">U</div>
+                    <div>
+                        <h3 th:text="${user?.fullName}">User Name</h3>
+                        <p style="color: var(--text-muted);" th:text="${user?.email}">user@email.com</p>
+                        <p style="font-size: 0.85rem; color: var(--primary);">
+                            <i class="fa-solid fa-shield-check"></i>
+                            Member since <span th:text="${#temporals.format(user.createdAt, 'MMM yyyy')}">Jan
+                                2024</span>
+                        </p>
+                    </div>
+                </div>
+
+                <form th:action="@{/profile/update}" method="post">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">First Name</label>
+                            <input type="text" name="firstName" th:value="${user?.firstName}" class="form-control"
+                                required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Last Name</label>
+                            <input type="text" name="lastName" th:value="${user?.lastName}" class="form-control"
+                                required>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Email Address</label>
+                        <input type="email" th:value="${user?.email}" class="form-control" disabled
+                            style="opacity: 0.7; cursor: not-allowed;">
+                        <small style="color: var(--text-muted); display: block; margin-top: 0.5rem;">
+                            Email cannot be changed directly. Contact support for assistance.
+                        </small>
+                    </div>
+
+                    <div style="margin-top: 2rem; padding-top: 2rem; border-top: 1px solid var(--glass-border);">
+                        <h4><i class="fa-solid fa-lock"></i> Security</h4>
+                        <div class="form-row" style="margin-top: 1rem;">
+                            <div class="form-group">
+                                <label class="form-label">New Password</label>
+                                <input type="password" name="newPassword" class="form-control"
+                                    placeholder="Leave blank to keep current">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Confirm Password</label>
+                                <input type="password" name="confirmPassword" class="form-control"
+                                    placeholder="Confirm new password">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div style="margin-top: 2rem; display: flex; justify-content: flex-end; gap: 1rem;">
+                        <button type="reset" class="btn btn-ghost">Discard Changes</button>
+                        <button type="submit" class="btn btn-primary">Save Changes</button>
+                    </div>
+                </form>
+            </div>
+        </main>
+    </div>
+
+    <script th:src="@{/js/main.js}"></script>
+</body>
+
+</html>

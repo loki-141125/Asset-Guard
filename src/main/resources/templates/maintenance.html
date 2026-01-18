@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="~{fragments/layout :: head}"></head>
+
+<body class="dashboard-page">
+    <div class="app-layout">
+        <!-- Sidebar -->
+        <aside class="sidebar glass">
+            <div class="sidebar-header">
+                <div class="sidebar-logo">
+                    <i class="fa-solid fa-shield-halved"></i>
+                    <span>AssetGuard</span>
+                </div>
+                <button class="sidebar-toggle" onclick="toggleSidebar()">
+                    <i class="fa-solid fa-bars"></i>
+                </button>
+            </div>
+
+            <nav class="sidebar-nav">
+                <a href="/dashboard" class="nav-item">
+                    <i class="fa-solid fa-gauge-high"></i>
+                    <span>Dashboard</span>
+                </a>
+                <a href="/dashboard" class="nav-item">
+                    <i class="fa-solid fa-cubes"></i>
+                    <span>All Assets</span>
+                </a>
+                <a href="/maintenance" class="nav-item active">
+                    <i class="fa-solid fa-wrench"></i>
+                    <span>Maintenance</span>
+                </a>
+                <a href="/profile" class="nav-item">
+                    <i class="fa-solid fa-user-gear"></i>
+                    <span>Settings</span>
+                </a>
+            </nav>
+
+            <div class="sidebar-footer">
+                <div class="user-info">
+                    <div class="user-avatar" th:text="${user?.firstName?.charAt(0)}">U</div>
+                    <div class="user-details">
+                        <span class="user-name" th:text="${user?.fullName}">User Name</span>
+                        <span class="user-email" th:text="${user?.email}">user@email.com</span>
+                    </div>
+                </div>
+                <a th:href="@{/logout}" class="btn btn-outline btn-small">
+                    <i class="fa-solid fa-sign-out-alt"></i>
+                </a>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <header class="top-bar glass">
+                <h2 style="margin: 0; font-size: 1.5rem;">Maintenance Log</h2>
+                <div class="top-bar-actions">
+                    <button class="btn btn-primary" onclick="toggleModal('addRecordModal')">
+                        <i class="fa-solid fa-plus"></i> Log Service
+                    </button>
+                </div>
+            </header>
+
+            <!-- Stats -->
+            <div class="stats-grid"
+                style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); margin-bottom: 2rem;">
+                <div class="stat-card glass">
+                    <div class="stat-icon gradient-orange">
+                        <i class="fa-solid fa-wrench"></i>
+                    </div>
+                    <div class="stat-content">
+                        <span class="stat-value" th:text="${records.size()}">0</span>
+                        <span class="stat-label">Total Records</span>
+                    </div>
+                </div>
+                <div class="stat-card glass">
+                    <div class="stat-icon gradient-red">
+                        <i class="fa-solid fa-coins"></i>
+                    </div>
+                    <div class="stat-content">
+                        <span class="stat-value" th:text="${'$' + #numbers.formatDecimal(totalCost, 1, 2)}">$0.00</span>
+                        <span class="stat-label">Total Cost</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Maintenance List -->
+            <div class="glass" style="padding: 0; overflow: hidden;">
+                <table class="data-table" style="width: 100%; border-collapse: collapse;">
+                    <thead style="background: rgba(255,255,255,0.05); border-bottom: 1px solid var(--glass-border);">
+                        <tr>
+                            <th style="padding: 1rem; text-align: left;">Date</th>
+                            <th style="padding: 1rem; text-align: left;">Asset</th>
+                            <th style="padding: 1rem; text-align: left;">Service</th>
+                            <th style="padding: 1rem; text-align: left;">Provider</th>
+                            <th style="padding: 1rem; text-align: left;">Cost</th>
+                            <th style="padding: 1rem; text-align: left;">Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="record : ${records}" style="border-bottom: 1px solid var(--glass-border);">
+                            <td style="padding: 1rem;" th:text="${record.maintenanceDate}">2024-01-01</td>
+                            <td style="padding: 1rem;">
+                                <div style="display: flex; align-items: center; gap: 0.5rem;">
+                                    <i class="fa-solid fa-cube" style="color: var(--primary)"></i>
+                                    <span th:text="${record.asset.name}">Asset</span>
+                                </div>
+                            </td>
+                            <td style="padding: 1rem;">
+                                <div style="font-weight: 600;" th:text="${record.title}">Oil Change</div>
+                                <div style="font-size: 0.85rem; color: var(--text-muted);"
+                                    th:text="${record.description}">Desc</div>
+                            </td>
+                            <td style="padding: 1rem;" th:text="${record.serviceProvider}">Provider</td>
+                            <td style="padding: 1rem; font-weight: 600;"
+                                th:text="${'$' + #numbers.formatDecimal(record.cost, 1, 2)}">$50.00</td>
+                            <td style="padding: 1rem;">
+                                <span class="asset-status" th:classappend="${record.status.name().toLowerCase()}"
+                                    th:text="${record.status}">COMPLETED</span>
+                            </td>
+                        </tr>
+                        <tr th:if="${records.empty}">
+                            <td colspan="6" style="padding: 3rem; text-align: center; color: var(--text-muted);">
+                                <i class="fa-solid fa-toolbox"
+                                    style="font-size: 2rem; margin-bottom: 1rem; opacity: 0.5;"></i>
+                                <p>No maintenance records found.</p>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </main>
+    </div>
+
+    <!-- Add Record Modal -->
+    <div id="addRecordModal" class="modal">
+        <div class="modal-overlay" onclick="toggleModal('addRecordModal')"></div>
+        <div class="glass modal-content animate-scale-in">
+            <div class="modal-header">
+                <h3><i class="fa-solid fa-wrench"></i> Log Maintenance</h3>
+                <button class="modal-close" onclick="toggleModal('addRecordModal')">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <form th:action="@{/maintenance/add}" th:object="${newRecord}" method="post">
+                <div class="form-group">
+                    <label class="form-label">Asset</label>
+                    <select name="assetId" class="form-control" required>
+                        <option value="">Select Asset...</option>
+                        <option th:each="asset : ${assets}" th:value="${asset.id}" th:text="${asset.name}"></option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Service Title</label>
+                    <input type="text" th:field="*{title}" class="form-control" placeholder="e.g. Annual Service"
+                        required>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Date</label>
+                        <input type="date" th:field="*{maintenanceDate}" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Cost ($)</label>
+                        <input type="number" step="0.01" th:field="*{cost}" class="form-control" placeholder="0.00"
+                            required>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Provider</label>
+                        <input type="text" th:field="*{serviceProvider}" class="form-control"
+                            placeholder="e.g. Apple Store">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Status</label>
+                        <select th:field="*{status}" class="form-control">
+                            <option value="COMPLETED">Completed</option>
+                            <option value="SCHEDULED">Scheduled</option>
+                            <option value="IN_PROGRESS">In Progress</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Description</label>
+                    <textarea th:field="*{description}" class="form-control" rows="3"></textarea>
+                </div>
+
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-ghost" onclick="toggleModal('addRecordModal')">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save Record</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script th:src="@{/js/main.js}"></script>
+</body>
+
+</html>
